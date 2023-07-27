@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
@@ -104,6 +104,21 @@ const onGoogleButtonPress = async () => {
   const { idToken } = await GoogleSignin.signIn();
   const googleCredential = auth.GoogleAuthProvider.credential(idToken);
   return auth().signInWithCredential(googleCredential);
+}
+
+const [isLoadingEnd, setIsLoadingEnd] = useState(false);
+
+const checkLoggedIn = () => {
+  auth().onAuthStateChanged((user) => {
+      if (user) {
+          setLoggedIn(true)
+          console.log("loggedIn")
+      } else {
+          setLoggedIn(false)
+          console.log("loggedOut")
+      }
+  }
+  )
 }
 
 const styles = StyleSheet.create({
