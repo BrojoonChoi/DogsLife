@@ -4,19 +4,24 @@ import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, 
 import Styles from '../Styles/CommonStyle';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import Swiper from 'react-native-swiper';
 
-export type RootStackParam = {
-    Home: undefined;
-    Test: undefined;
-  };
-
-function HomeView():JSX.Element
+function HomeView({navigation}:any):JSX.Element
 {
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
+    const bannerLists = ["test1", "test2", "test3"]
+    
     return (
-        <View style={Styles.mainBody}>
+        <SafeAreaView style={Styles.mainBody}>
+            <Swiper autoplay showsPagination={true} width={300} height={250} autoplayTimeout={5}>
+            {
+                bannerLists.map((banner, key) => 
+                {
+                return (<Text key={'id'+key}>{banner}</Text>)
+                }
+            )}
+            </Swiper>
             <Text>Text</Text>
-        </View>
+        </SafeAreaView>
     );
 }
 
