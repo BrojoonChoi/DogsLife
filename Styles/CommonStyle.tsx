@@ -14,6 +14,21 @@ const Styles = StyleSheet.create
     {
         flex: 1,
     },
+    bannerContainer :
+    {
+        alignItems:'flex-start',
+        width: 280,
+        height: 210,
+    },
+    banner :
+    {
+        flex: 1,
+        width: 280,
+        height: 210,
+        borderRadius: 36,
+        borderColor: '#000000',
+        borderWidth:2,
+    },
     contentsBigContainer :
     {
         flex: 2,

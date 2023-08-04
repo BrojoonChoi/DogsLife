@@ -1,35 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import type {PropsWithChildren} from 'react';
-import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View, Image } from 'react-native';
+import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View, Image, Alert, Button } from 'react-native';
 import { GoogleSignin, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth'
 import Styles from '../Styles/CommonStyle';
-import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import ExceptionHandler from '../Assets/Systems/ExceptionHandler'
 
-export type RootStackParam = {
-    Home: undefined;
-    Test: undefined;
-  };
-
-function LoginView():JSX.Element
+function LoginView({navigation}: any):JSX.Element
 {
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
-
-    const [isLoggedIn, setLoggedIn] = useState(false);
-    const [isLoadingEnd, setIsLoadingEnd] = useState(false);
-    useEffect(()=> googleSigninConfigure());
-
-    const checkLoggedIn = () =>
+    const onAuthStateChanged = () =>
     {
-        auth().onAuthStateChanged((user) => 
-        {
-            user ? setLoggedIn(true) : setLoggedIn(false)
-        })
+        //navigation.navigate('Home', {id:1});
     }
 
+    const ButtonPress = () =>
+    {
+        navigation.reset({routes: [{name: 'Home'}]})
+    }
+
+
     return (
-        <View style={Styles.mainBody}>
+        <SafeAreaView style={Styles.mainBody}>
             
             <View style={Styles.spacer}/>
 
@@ -42,23 +34,27 @@ function LoginView():JSX.Element
             </View>
 
             <View style={Styles.contentsContainer}>
-                <GoogleSigninButton onPress={onGoogleButtonPress}/>
-                <GoogleSigninButton onPress={onGoogleButtonPress}/>
-                <GoogleSigninButton onPress={onGoogleButtonPress}/>
+                <Button title='Home' onPress={() => ButtonPress()} />
+                <GoogleSigninButton onPress={() => onGoogleButtonPress()}/>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 
-const googleSigninConfigure = () => 
+const onGoogleButtonPress = async () => 
 {
-    GoogleSignin.configure({webClientId:'21242744532-12ub15j2cmahc6bau6bp7jrmp876nv55.apps.googleusercontent.com',})
-}
-
-const onGoogleButtonPress = async () => {
-    const { idToken } = await GoogleSignin.signIn();
-    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-    return auth().signInWithCredential(googleCredential);
+    try 
+    {
+        GoogleSignin.configure({webClientId:'21242744532-12ub15j2cmahc6bau6bp7jrmp876nv55.apps.googleusercontent.com',})
+        const { idToken } = await GoogleSignin.signIn();
+        const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+        return auth().signInWithCredential(googleCredential);
+    }
+    catch(e)
+    {
+        console.log(e)
+    }
+    
 }
 
 export default LoginView
