@@ -51,7 +51,7 @@ const User1 = ({navigation}:any) => {
   return (
     <View key={"test"}>
       <Button title="Create Offer" onPress={createOffer} />
-      <Button title="Client" onPress={() => {navigation.navigate('User2')}} />
+      <Button title="Client" onPress={() => {navigation.navigate('Client')}} />
     </View>
   );
 };

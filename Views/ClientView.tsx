@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Button, Alert } from 'react-native';
+import firebase from '@react-native-firebase/app'
 import database from '@react-native-firebase/database'
 import { RTCSessionDescription, RTCPeerConnection, RTCView } from 'react-native-webrtc';
 
@@ -22,7 +23,7 @@ const User2 = () => {
   const [remoteStream, setRemoteStream] = useState(null);
 
   const readOffer = async () => {
-    const offerRef = database().ref('offers/user1');
+    const offerRef = firebase.database().ref('offers/user1');
 
     // Retrieve the offer (SDP) from Firebase
     const snapshot = await offerRef.once('value');
@@ -35,23 +36,23 @@ const User2 = () => {
     //stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
     // Set the remote description (offer)
-    console.log("here1")
-    const offerDes = new RTCSessionDescription(offer);
+    const offerDes = new RTCSessionDescription({sdp:offer._sdp, type:offer._type});
+    console.log(offerDes.sdp)
+    console.log(offerDes.type)
     await pc.setRemoteDescription(offerDes);
-    console.log("here2")
 
     // Create an answer and set it as local description
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
 
     // Store the answer (SDP) in Firebase
-    const answerRef = database().ref('answers/user2');
+    const answerRef = database().ref('answers/user1');
     answerRef.set({ sdp: pc.localDescription });
 
     // Listen for ICE candidates and add them to the connection
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        const candidateRef = database().ref('candidates/user2');
+        const candidateRef = database().ref('candidates/user1');
         candidateRef.push(event.candidate.toJSON());
       }
     };

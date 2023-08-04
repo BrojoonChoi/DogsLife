@@ -3,6 +3,8 @@ import type {PropsWithChildren} from 'react';
 import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import LoginView from './Views/LoginView'
 import HomeView from './Views/HomeView'
+import ClientView from './Views/ClientView'
+import ServerView from './Views/ServerView'
 import {NavigationContainer,} from '@react-navigation/native'
 import {createNativeStackNavigator,} from '@react-navigation/native-stack'
 import firebase from '@react-native-firebase/app'
@@ -29,6 +31,8 @@ function App(): JSX.Element {
       <Stack.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }}>
         <Stack.Screen name='Login' component={LoginView}/>
         <Stack.Screen name='Home' component={HomeView}/>
+        <Stack.Screen name='Client' component={ClientView}/>
+        <Stack.Screen name='Server' component={ServerView}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

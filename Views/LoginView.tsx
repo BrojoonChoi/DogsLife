@@ -35,6 +35,8 @@ function LoginView({navigation}: any):JSX.Element
 
             <View style={Styles.contentsContainer}>
                 <Button title='Home' onPress={() => ButtonPress()} />
+                <Button title='Client' onPress={() => navigation.reset({routes: [{name: 'Client'}]})} />
+                <Button title='Server' onPress={() => navigation.reset({routes: [{name: 'Server'}]})} />
                 <GoogleSigninButton onPress={() => onGoogleButtonPress()}/>
             </View>
         </SafeAreaView>
