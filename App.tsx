@@ -25,7 +25,6 @@ const app = firebase.initializeApp(firebaseConfig);
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
-
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }}>

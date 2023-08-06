@@ -1,14 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import type {PropsWithChildren} from 'react';
-import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View, Image, Alert, Button } from 'react-native';
+import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View, Image, Alert, Button, Platform } from 'react-native';
 import { GoogleSignin, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth'
 import Styles from '../Styles/CommonStyle';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import ExceptionHandler from '../Assets/Systems/ExceptionHandler'
+import { request, PERMISSIONS } from 'react-native-permissions';
 
 function LoginView({navigation}: any):JSX.Element
 {
+    const requestMediaPermissions = async () => {
+        const isAndroid = Platform.OS === 'android';
+        const isIOS = Platform.OS === 'ios';
+        if (isAndroid) {
+            const cameraPermissionStatus = await request(PERMISSIONS.ANDROID.CAMERA);
+            const microphonePermissionStatus = await request(PERMISSIONS.ANDROID.RECORD_AUDIO);
+        }
+        else if (isIOS) {
+            const cameraPermissionStatus = await request(PERMISSIONS.IOS.CAMERA);
+            const microphonePermissionStatus = await request(PERMISSIONS.IOS.MICROPHONE);
+        }
+    };
+
+    useEffect (() => {
+        requestMediaPermissions();
+    },[])
+
     const onAuthStateChanged = () =>
     {
         //navigation.navigate('Home', {id:1});
