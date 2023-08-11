@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Button, Alert } from 'react-native';
 import firebase from '@react-native-firebase/app'
 import database from '@react-native-firebase/database'
-import { RTCSessionDescription, RTCPeerConnection, RTCView, mediaDevices } from 'react-native-webrtc';
+import { RTCSessionDescription, RTCPeerConnection, RTCView, mediaDevices, RTCIceCandidate } from 'react-native-webrtc';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 let peerConstraints = {
@@ -49,29 +49,36 @@ const User2 = () => {
     // Create an answer and set it as local description
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
-    
 
-    // Store the answer (SDP) in Firebase
-    const answerRef = database().ref('answers/user1');
-    answerRef.set({ sdp: pc.localDescription });
-
-    // Listen for ICE candidates and add them to the connection
+    // Listen for ICE candidates and add them to the connection  
+    const candidateRefClient = database().ref('candidates/user1/client');
+    candidateRefClient.remove()
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        console.log("client test")
-        console.log(event.candidate)
-        const candidateRef = database().ref('candidates/user1');
-        candidateRef.push(event.candidate.toJSON());
+        candidateRefClient.push(event.candidate.toJSON());
       }
     };
 
+    const candidateRefServer = database().ref('candidates/user1/server');
+    candidateRefServer.on('child_added', (snapshot) => {
+      console.log("client read")
+      const candidate = new RTCIceCandidate(snapshot.val());
+      pc.addIceCandidate(candidate)
+    });
+    
+    // Store the answer (SDP) in Firebase
+    const answerRef = database().ref('answers/user1');
+    await answerRef.set({ sdp: pc.localDescription });
+
     // Listen for remote tracks and add them to the remote stream
     pc.ontrack = (event) => {
+      console.log(pc.iceConnectionState)
       if (event.streams && event.streams[0]) {
         console.log("Client : test2")
         setRemoteStream(event.streams[0]);
       }
     };
+    
   };
 
   return (

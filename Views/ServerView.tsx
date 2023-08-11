@@ -55,6 +55,22 @@ const User1 = () => {
         console.error('Error: Local description is undefined');
       }
 
+    const candidateRefClient = database().ref('candidates/user1/client');
+    candidateRefClient.remove()
+    candidateRefClient.on('child_added', (snapshot) => {
+      const candidate = new RTCIceCandidate(snapshot.val());
+      pc.addIceCandidate(candidate)
+      console.log("server read")
+    });
+    
+    const candidateRefServer = database().ref('candidates/user1/server');
+    candidateRefServer.remove()
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        candidateRefServer.push(event.candidate.toJSON());
+      }
+    };
+
     const answerRef = database().ref('answers/user1');
     answerRef.remove()
     answerRef.on('child_added', (snapshot) => {
@@ -65,23 +81,12 @@ const User1 = () => {
       }
     });
 
-    const candidateRef = database().ref('candidates/user1');
-    await candidateRef.remove()
-    candidateRef.on('child_added', async (snapshot) => {
-      const candidate = new RTCIceCandidate(await snapshot.val());
-      console.log(candidate)
-      console.log("server test")
-      console.log("server : " + candidate)
-      pc.addIceCandidate(candidate).catch((error) => {
-      console.error('Error adding ICE candidate:', error);
-      });
-    });
-
     // Listen for remote tracks and add them to the remote stream
     pc.ontrack = (event) => {
       if (event.streams && event.streams[0]) {
-        console.log("Server : test2")
         setRemoteStream(event.streams[0]);
+        console.log(localStream)
+        console.log(remoteStream)
       }
     };
   };
