@@ -5,6 +5,9 @@ import { GoogleSignin, GoogleSigninButton, GoogleSigninButtonProps } from '@reac
 import auth from '@react-native-firebase/auth'
 import Styles from '../Styles/CommonStyle';
 import { request, PERMISSIONS } from 'react-native-permissions';
+import { Svg } from 'react-native-svg';
+import ImgBackground from '../Assets/Images/img_main_background.svg'
+import ImgLogo from '../Assets/Images/img_main_logo.svg'
 
 function LoginView({navigation}: any):JSX.Element
 {
@@ -38,22 +41,10 @@ function LoginView({navigation}: any):JSX.Element
 
     return (
         <SafeAreaView style={Styles.mainBody}>
-            
-            <View style={Styles.spacer}/>
-
-            <View style={Styles.contentsContainer}>
-                <Image source={require('../Assets/Images/img_main_logo.png')} style={Styles.imageContainer}/>
-            </View>
-
-            <View style={Styles.contentsContainer}>
-                <Image source={require('../Assets/Images/img_main_logo_text.png')} style={Styles.imageContainer}/>
-            </View>
-
-            <View style={Styles.contentsContainer}>
-                <Button title='Home' onPress={() => ButtonPress()} />
-                <Button title='Client' onPress={() => navigation.reset({routes: [{name: 'Client'}]})} />
-                <Button title='Server' onPress={() => navigation.reset({routes: [{name: 'Server'}]})} />
-                <GoogleSigninButton onPress={() => onGoogleButtonPress()}/>
+            <ImgBackground style={Styles.background}/>
+            <View style={{alignItems:"center", top:210}}>
+                <ImgLogo style={Styles.logo}/>
+                <Text style={Styles.title}>강아지의 하루</Text>
             </View>
         </SafeAreaView>
     );

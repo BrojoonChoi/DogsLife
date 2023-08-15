@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Button, Alert } from 'react-native';
 import firebase from '@react-native-firebase/app'
 import database from '@react-native-firebase/database'
-import { RTCSessionDescription, RTCPeerConnection, RTCView, mediaDevices, RTCIceCandidate } from 'react-native-webrtc';
+import { RTCSessionDescription, RTCPeerConnection, RTCView, mediaDevices, RTCIceCandidate, MediaStream } from 'react-native-webrtc';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 let peerConstraints = {
@@ -12,29 +12,28 @@ let peerConstraints = {
 		}
 	]
 };
-let sessionConstraints = {
-	mandatory: {
-		OfferToReceiveAudio: true,
-		OfferToReceiveVideo: true,
-		VoiceActivityDetection: true
-	}
-};
+
 let mediaConstraints = {
 	audio: true,
-	video: {
-		frameRate: 30,
-		facingMode: 'user'
-	}
+	video: true
 };
 
 const User2 = () => {
-  const [remoteStream, setRemoteStream] = useState(null);
+  const [remoteStream, setRemoteStream] = useState(new MediaStream());
   const [localStream, setLocalStream] = useState(null);
 
   const readOffer = async () => {
     const pc = new RTCPeerConnection(peerConstraints);
 
-    pc.addEventListener('connectionstatechange', event => {console.log(event)} )
+    pc.ontrack = (event) => {
+      event.streams[0].getTracks().forEach(track => {
+        remoteStream.addTrack(track);
+      });
+    };
+
+    pc.addEventListener('iceconnectionstatechange', event => {
+      console.log(event)
+    })
     
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
     setLocalStream(stream)
@@ -49,44 +48,40 @@ const User2 = () => {
     // Create an answer and set it as local description
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
-
+    
     // Listen for ICE candidates and add them to the connection  
     const candidateRefClient = database().ref('candidates/user1/client');
     candidateRefClient.remove()
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        candidateRefClient.push(event.candidate.toJSON());
+        candidateRefClient.push(event.candidate);
       }
     };
 
-    const candidateRefServer = database().ref('candidates/user1/server');
-    candidateRefServer.on('child_added', (snapshot) => {
-      console.log("client read")
-      const candidate = new RTCIceCandidate(snapshot.val());
-      pc.addIceCandidate(candidate)
-    });
-    
     // Store the answer (SDP) in Firebase
     const answerRef = database().ref('answers/user1');
     await answerRef.set({ sdp: pc.localDescription });
 
-    // Listen for remote tracks and add them to the remote stream
-    pc.ontrack = (event) => {
-      console.log(pc.iceConnectionState)
-      if (event.streams && event.streams[0]) {
-        console.log("Client : test2")
-        setRemoteStream(event.streams[0]);
-      }
-    };
+    const candidateRefServer = database().ref('candidates/user1/server');
+    candidateRefServer.on('child_added', (snapshot) => {
+      const candidate = new RTCIceCandidate(snapshot.val());
+      pc.addIceCandidate(candidate)
+    });
     
   };
 
+  const buttonNew = () =>
+  {
+    console.log(remoteStream.getVideoTracks().length)
+  }
+
   return (
-    <SafeAreaView style={{flex:1}}>
+    <View style={{flex:1}}>
       <Button title="Read Offer" onPress={readOffer} />
-      {remoteStream && <RTCView streamURL={remoteStream.toURL()} style={{ flex: 1 }} />}
-      {localStream && <RTCView streamURL={localStream.toURL()} style={{ flex: 1 }} />}
-    </SafeAreaView>
+      <Button title="Show data" onPress={buttonNew} />
+      {remoteStream.getVideoTracks().length > 0 && <RTCView streamURL={remoteStream.toURL()} mirror={true} style={{ flex: 1 }} />}
+      {localStream && <RTCView streamURL={localStream.toURL()} mirror={true} style={{ flex: 1 }} />}
+    </View>
   );
 };
 

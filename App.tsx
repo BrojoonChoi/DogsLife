@@ -20,7 +20,7 @@ const firebaseConfig = {
   measurementId: "G-4GN4G7K6CC"
 };
 
-const app = firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 
 const Stack = createNativeStackNavigator();
 

@@ -5,10 +5,8 @@ const Styles = StyleSheet.create
     mainBody :
     {
         flex: 1,
-        justifyContent : 'center',
-        alignItems : 'center',
-        flexDirection : 'column',
-        backgroundColor : "#FFFFFF",
+        justifyContent:"center",
+        alignItems:"center",
     },
     contentsContainer :
     {
@@ -41,6 +39,31 @@ const Styles = StyleSheet.create
     spacer:
     {
         flex:0.5,
+    },
+    background:
+    {
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+    },
+    logo:
+    {
+        flex:1,
+        width: 210,
+        height: 176,
+    },
+    title:
+    {
+        flex:1,
+        fontSize:60,
+        fontFamily:"TitleFont",
+        textAlign: "center",
+        letterSpacing: 0.84,
+        color: "#424242",
+        opacity: 1,
+        top:12
     }
 })
 
