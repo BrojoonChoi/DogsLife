@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import type {PropsWithChildren} from 'react';
 import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import LoginView from './Views/LoginView'
-import HomeView from './Views/HomeView'
-import ClientView from './Views/ClientView'
-import ServerView from './Views/ServerView'
 import {NavigationContainer,} from '@react-navigation/native'
 import {createNativeStackNavigator,} from '@react-navigation/native-stack'
 import firebase from '@react-native-firebase/app'
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
+import HomeView from './Views/HomeView'
+import LoadingView from './Views/LoadingView'
+import LoginView from './Views/LoginView'
+import ClientView from './Views/ClientView'
+import ServerView from './Views/ServerView'
 
 const firebaseConfig = {
   apiKey: "AIzaSyBny7zuFlGUdjVokhr0SVDBjCIE6RJ76Rk",
@@ -20,37 +23,26 @@ const firebaseConfig = {
   measurementId: "G-4GN4G7K6CC"
 };
 
+const googleSigninConfigure = () => GoogleSignin.configure({webClientId:'21242744532-tpjf2a06f38c0p4kq3c3gqvc9bntqtrj.apps.googleusercontent.com',})
+
 firebase.initializeApp(firebaseConfig);
 
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
+  useEffect (() => {
+    googleSigninConfigure()
+  },[])
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName='Loading' screenOptions={{ headerShown: false }}>
+        <Stack.Screen name='Loading' component={LoadingView}/>
         <Stack.Screen name='Login' component={LoginView}/>
         <Stack.Screen name='Home' component={HomeView}/>
-        <Stack.Screen name='Client' component={ClientView}/>
-        <Stack.Screen name='Server' component={ServerView}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
 export default App;
-
-/*
-
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-          
-      <LoginView />
-        <View</View>
-          </ScrollView>
-        </SafeAreaView>
-*/

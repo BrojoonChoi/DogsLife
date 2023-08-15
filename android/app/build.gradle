@@ -73,9 +73,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.dogslife"
+    namespace "com.cheshirejoon.dogslife"
     defaultConfig {
-        applicationId "com.dogslife"
+        applicationId "com.cheshirejoon.dogslife"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

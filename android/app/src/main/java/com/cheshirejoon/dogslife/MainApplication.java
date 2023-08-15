@@ -1,4 +1,4 @@
-package com.dogslife;
+package com.cheshirejoon.dogslife;
 
 import android.app.Application;
 import com.facebook.react.PackageList;
