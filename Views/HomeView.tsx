@@ -47,7 +47,7 @@ function HomeView({navigation}:any):JSX.Element
             </View>
 
             {/*Banner zone*/}
-            <View style={{width:"100%", height:166, alignItems:"center", justifyContent:"center"}}>
+            <View style={{width:"100%", height:166, alignItems:"center", justifyContent:"center", paddingLeft:21, paddingRight:21}}>
                 <View style={Styles.bannerContainer}>
                     {
                         imageList == undefined ? <Text>loading</Text> :
