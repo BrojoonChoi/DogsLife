@@ -36,7 +36,7 @@ function App(): JSX.Element {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='Loading' screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName='Home' screenOptions={{ headerShown: false }}>
         <Stack.Screen name='Loading' component={LoadingView}/>
         <Stack.Screen name='Login' component={LoginView}/>
         <Stack.Screen name='Home' component={HomeView}/>

@@ -1,68 +1,65 @@
 import React, { useEffect, useState } from 'react';
 import type {PropsWithChildren} from 'react';
-import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View, Image, Alert, Button, Platform } from 'react-native';
+import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View, Image, Alert, Button, Platform, TouchableOpacity } from 'react-native';
 import { GoogleSignin, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth'
 import Styles from '../Styles/CommonStyle';
-import { request, PERMISSIONS } from 'react-native-permissions';
 
 import ImgLogo from '../Assets/Images/img_login_logo.svg'
 
 function LoginView({navigation}: any):JSX.Element
-{
-    const requestMediaPermissions = async () => {
-        const isAndroid = Platform.OS === 'android';
-        const isIOS = Platform.OS === 'ios';
-        if (isAndroid) {
-            const cameraPermissionStatus = await request(PERMISSIONS.ANDROID.CAMERA);
-            const microphonePermissionStatus = await request(PERMISSIONS.ANDROID.RECORD_AUDIO);
+{    
+    const onAppleButtonPress = async () => {
+        try 
+        {
+            await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+            const { idToken } = await GoogleSignin.signIn();
+            const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+            auth().signInWithCredential(googleCredential);
+            navigation.reset({routes: [{name: 'Home'}]})
         }
-        else if (isIOS) {
-            const cameraPermissionStatus = await request(PERMISSIONS.IOS.CAMERA);
-            const microphonePermissionStatus = await request(PERMISSIONS.IOS.MICROPHONE);
+        catch(e)
+        {
+            Alert.alert(e + "\n에러가 발생했습니다.")
         }
-    };
-
-    useEffect (() => {
-        requestMediaPermissions();
-    },[])
-
-    const onAuthStateChanged = () =>
-    {
-        navigation.reset({routes: [{name: 'Home'}]})
     }
-
-    const ButtonPress = () =>
-    {
-        navigation.reset({routes: [{name: 'Home'}]})
+    
+    const onGoogleButtonPress = async () => {
+        try 
+        {
+            await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+            const { idToken } = await GoogleSignin.signIn();
+            const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+            auth().signInWithCredential(googleCredential);
+            navigation.reset({routes: [{name: 'Home'}]})
+        }
+        catch(e)
+        {
+            Alert.alert(e + "\n에러가 발생했습니다.")
+        }
     }
 
 
     return (
         <SafeAreaView style={{backgroundColor:"#FFDFDE", ...Styles.mainBody}}>
-            <ImgLogo style={Styles.logo}/>
+            <View style={{top:83, ...Styles.contentsContainer}}>
+                <ImgLogo style={{width:260, height:248}}/>
+                <Text style={Styles.title}>강아지의 하루</Text>
+            </View>
 
-            <Text style={Styles.title}>강아지의 하루</Text>
-
-            <GoogleSigninButton onPress={() => onGoogleButtonPress()}/>
+            <View style={{top:150, ...Styles.contentsContainer}}>
+                <TouchableOpacity style={{...Styles.loginButton}}>
+                    <Text style={Styles.loginButtonText} onPress={() => onAppleButtonPress()}>Sign in with Apple</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{...Styles.loginButton}}>
+                    <Text style={Styles.loginButtonText} onPress={() => onGoogleButtonPress()}>Login in with GOOGLE</Text> 
+                </TouchableOpacity>
+                <TouchableOpacity style={{...Styles.loginButtonKakao}}>
+                    <Text style={Styles.loginButtonText} onPress={() => onGoogleButtonPress()}>Login in with Kakao</Text> 
+                </TouchableOpacity>
+            </View>
         </SafeAreaView>
     );
-}
-
-const onGoogleButtonPress = async () => 
-{
-    await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true})
-    const { idToken } = await GoogleSignin.signIn();
-    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-    return auth().signInWithCredential(googleCredential);
-    try 
-    {
-    }
-    catch(e)
-    {
-        console.log(e)
-    }
-    
 }
 
 export default LoginView

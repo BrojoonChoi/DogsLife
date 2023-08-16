@@ -3,7 +3,6 @@ import type {PropsWithChildren} from 'react';
 import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View, Image, Alert, Button, Platform } from 'react-native';
 import { GoogleSignin, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth'
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Styles from '../Styles/CommonStyle';
 import { request, PERMISSIONS } from 'react-native-permissions';
 
@@ -27,29 +26,33 @@ function LoadingView({navigation}: any):JSX.Element
         }
     };
 
+    const sleep = async (ms:any) => {
+        const wait = new Promise(resolve => setTimeout(resolve, ms));
+        await wait;
+      }
+
     useEffect (() => {
+        sleep(1000); 
         requestMediaPermissions();
         
         const checkAutoLogin = async () => {
-            const userToken = await AsyncStorage.getItem('userToken');
-            console.log("login try")
-            if (userToken) {
-              setUser(auth().currentUser);
+            try 
+            {
+                await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+                const { idToken } = await GoogleSignin.signIn();
+                const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+                auth().signInWithCredential(googleCredential);
+                navigation.reset({routes: [{name: 'Home'}]})
             }
-            else {
-              console.log("login failed")
-              navigation.reset({routes: [{name: 'Login'}]})
+            catch(e)
+            {
+                Alert.alert(e + "\n에러가 발생했습니다.")
+                navigation.reset({routes: [{name: 'Login'}]})
             }
           };
       
           checkAutoLogin();
     },[])
-
-    const onAuthStateChanged = () =>
-    {
-      console.log("login successful")
-      navigation.reset({routes: [{name: 'Home'}]})
-    }
 
     return (
         <SafeAreaView style={Styles.mainBody}>
