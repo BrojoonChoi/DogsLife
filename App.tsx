@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import type {PropsWithChildren} from 'react';
-import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import {NavigationContainer,} from '@react-navigation/native'
+import type {PropsWithChildren} from 'react';import {NavigationContainer,} from '@react-navigation/native'
 import {createNativeStackNavigator,} from '@react-navigation/native-stack'
 import firebase from '@react-native-firebase/app'
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import {GlobalContextProvider} from './Components/GlobalContext';
 import ModalNotification from './Components/ModalNotification';
+import ModalOKCancel from './Components/ModalOKCancel';
 
 import HomeView from './Views/HomeView'
 import LoadingView from './Views/LoadingView'
@@ -47,6 +46,7 @@ function App(): JSX.Element {
           <Stack.Screen name='Server' component={ServerView}/>
         </Stack.Navigator>
       <ModalNotification />
+      <ModalOKCancel />
       </GlobalContextProvider>
     </NavigationContainer>
   );

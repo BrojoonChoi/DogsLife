@@ -167,6 +167,7 @@ const Styles = StyleSheet.create
         backgroundColor :"#FAFAFA",
         borderRadius:16,
         height:223,
+        width:"100%"    ,
     },
     modalTitle :
     {

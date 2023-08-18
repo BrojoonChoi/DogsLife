@@ -28,13 +28,19 @@ let mediaConstraints = {
 const Server = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState(new MediaStream());
   const [localStream, setLocalStream] = useState(null);
-  const {ShowNotification} = useContext(GlobalContext)
+  const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt} = useContext(GlobalContext)
 
   useEffect (() => {
-    ShowNotification("안내", "이 화면을 CCTV로 사용하시겠습니까?")
+    ShowOKCancel("알림", "카메라 설정을 시작합니다.", () => (startProcess()) )
   },[])
 
-  const createOffer = async () => {
+  const startProcess = () => {
+    const salt = generateSalt();
+    ShowNotification(salt, "일상용 핸드폰에 이 번호를 입력하세요.")
+    createOffer("1234");
+  }
+
+  const createOffer = async (salt:string) => {
     const pc = new RTCPeerConnection(peerConstraints);
     
     pc.ontrack = (event) => {
@@ -42,10 +48,6 @@ const Server = ({navigation}:any) => {
         remoteStream.addTrack(track);
       });
     };
-
-    pc.addEventListener('iceconnectionstatechange', event => {
-      console.log(event)
-    })
     
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
     setLocalStream(stream);
@@ -58,7 +60,7 @@ const Server = ({navigation}:any) => {
     // Store the offer (SDP) in Firebase
     const offerRef = database().ref('offers/user1');
     if (pc.localDescription) {
-      offerRef.set({ sdp: pc.localDescription });
+      offerRef.set({ sdp: encryptWithSalt(pc.localDescription, salt) });
     } else {
       console.error('Error: Local description is undefined');
     }
@@ -74,7 +76,7 @@ const Server = ({navigation}:any) => {
     const answerRef = database().ref('answers/user1');
     answerRef.remove()
     answerRef.on('child_added', async (snapshot) => {
-      const answer = snapshot.val();
+      const answer = decryptWithSalt(snapshot.val(), salt);
       if (answer != undefined) {
         const answerDes = new RTCSessionDescription({sdp:answer._sdp, type:answer._type});
         await pc.setRemoteDescription(answerDes);
@@ -91,7 +93,7 @@ const Server = ({navigation}:any) => {
 
   return (
     <SafeAreaView style={{flex:1}}>
-      {localStream && <RTCView streamURL={localStream.toURL()} mirror={true} style={{ flex: 1 }} />}
+      {localStream && <RTCView streamURL={localStream.toURL()} mirror={true} style={{ flex: 1 }} objectFit={'cover'}/>}
       <Footer navigation={navigation}/>
     </SafeAreaView>
   );

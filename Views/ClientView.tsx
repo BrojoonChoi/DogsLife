@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Button, Alert, TouchableOpacity, Text, ScrollView} from 'react-native';
 import Styles from '../Styles/CommonStyle';
 import firebase from '@react-native-firebase/app'
@@ -6,8 +6,8 @@ import database, { FirebaseDatabaseTypes } from '@react-native-firebase/database
 import { RTCSessionDescription, RTCPeerConnection, RTCView, mediaDevices, RTCIceCandidate, MediaStream } from 'react-native-webrtc';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Footer from '../Components/Footer'
-import ModalCameraSetting from '../Components/ModalCameraSetting';
 import CameraList from '../Components/CameraList';
+import GlobalContext from '../Components/GlobalContext';
 
 let peerConstraints = {
 	iceServers: [
@@ -25,16 +25,16 @@ let mediaConstraints = {
 const Client = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState(new MediaStream());
   const [localStream, setLocalStream] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
   const [askAgain, setAskAgain] = useState(true);
+  const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt} = useContext(GlobalContext)
+  const tempSalt = "1234"
 
   const timeoutPromise = new Promise((resolve, reject) => {
     return (
       setTimeout(() => {
         //reject(new Error('Timeout while waiting for data.'));
         if (askAgain) {
-          setAskAgain(false);
-          setModalVisible(true);
+          AskCameraSetting()
         }
       }, 3000)
     )
@@ -45,20 +45,16 @@ const Client = ({navigation}:any) => {
 
   useEffect(() => {
     if (askAgain)
-      readOffer();
+      readOffer(tempSalt);
     return () => handleModal();
   }, [])
 
-  const modalClose = () => {
-    setModalVisible(false)
-  }
-  
-  const modalOK = () => {
-    setModalVisible(false)
-    navigation.navigate("Server")
+  const AskCameraSetting = () => {
+    setAskAgain(false);
+    ShowOKCancel("카메라가 없습니다!", "카메라를 설정하러 갈까요?", () => (navigation.navigate("Server")) )
   }
 
-  const readOffer = async () => {
+  const readOffer = async (salt:string) => {
     const pc = new RTCPeerConnection(peerConstraints);
 
     pc.ontrack = (event) => {
@@ -74,7 +70,7 @@ const Client = ({navigation}:any) => {
     try {
       const offerRef = firebase.database().ref('offers/user1');
       const snapshot:any = await Promise.race([offerRef.once('value'), timeoutPromise])
-      const offer = snapshot.val().sdp;
+      const offer = decryptWithSalt(snapshot.val().sdp, salt);
       const offerDes = new RTCSessionDescription({sdp:offer._sdp, type:offer._type});
       await pc.setRemoteDescription(offerDes);
     }
@@ -97,7 +93,7 @@ const Client = ({navigation}:any) => {
 
     // Store the answer (SDP) in Firebase
     const answerRef = database().ref('answers/user1');
-    await answerRef.set({ sdp: pc.localDescription });
+    await answerRef.set({ sdp: encryptWithSalt(pc.localDescription, salt) });
 
     const candidateRefServer = database().ref('candidates/user1/server');
     candidateRefServer.on('child_added', (snapshot) => {
@@ -124,7 +120,6 @@ const Client = ({navigation}:any) => {
       </View>
 
       <Footer navigation={navigation}/>
-      <ModalCameraSetting visible={modalVisible} onClose={modalClose} onClick={modalOK}/>
     </SafeAreaView>
   );
 }
