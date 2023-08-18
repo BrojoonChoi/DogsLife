@@ -5,6 +5,8 @@ import {NavigationContainer,} from '@react-navigation/native'
 import {createNativeStackNavigator,} from '@react-navigation/native-stack'
 import firebase from '@react-native-firebase/app'
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import {GlobalContextProvider} from './Components/GlobalContext';
+import ModalNotification from './Components/ModalNotification';
 
 import HomeView from './Views/HomeView'
 import LoadingView from './Views/LoadingView'
@@ -36,15 +38,17 @@ function App(): JSX.Element {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='Home' screenOptions={{ headerShown: false }}>
-        <Stack.Screen name='Loading' component={LoadingView}/>
-        <Stack.Screen name='Login' component={LoginView}/>
-        <Stack.Screen name='Home' component={HomeView}/>
-        <Stack.Screen name='Client' component={ClientView}/>
-        <Stack.Screen name='Server' component={ServerView}/>
-      </Stack.Navigator>
+      <GlobalContextProvider>
+        <Stack.Navigator initialRouteName='Home' screenOptions={{ headerShown: false }}>
+          <Stack.Screen name='Loading' component={LoadingView}/>
+          <Stack.Screen name='Login' component={LoginView}/>
+          <Stack.Screen name='Home' component={HomeView}/>
+          <Stack.Screen name='Client' component={ClientView}/>
+          <Stack.Screen name='Server' component={ServerView}/>
+        </Stack.Navigator>
+      <ModalNotification />
+      </GlobalContextProvider>
     </NavigationContainer>
   );
 }
-
 export default App;

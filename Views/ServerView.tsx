@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, Button, SafeAreaView, ScrollView } from 'react-native';
 //import firebase from '@react-native-firebase/app'
 import database from '@react-native-firebase/database';
 import { RTCSessionDescription, RTCPeerConnection, mediaDevices, RTCIceCandidate, RTCView, MediaStream, } from 'react-native-webrtc';
-import {NavigationContainer, NavigationProp,} from '@react-navigation/native'
-import {createNativeStackNavigator,} from '@react-navigation/native-stack'
+import GlobalContext from '../Components/GlobalContext';
 import Footer from '../Components/Footer'
 
 let peerConstraints = {
@@ -29,6 +28,11 @@ let mediaConstraints = {
 const Server = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState(new MediaStream());
   const [localStream, setLocalStream] = useState(null);
+  const {ShowNotification} = useContext(GlobalContext)
+
+  useEffect (() => {
+    ShowNotification("안내", "이 화면을 CCTV로 사용하시겠습니까?")
+  },[])
 
   const createOffer = async () => {
     const pc = new RTCPeerConnection(peerConstraints);
@@ -83,21 +87,11 @@ const Server = ({navigation}:any) => {
       const candidate = new RTCIceCandidate(snapshot.val());
       pc.addIceCandidate(candidate)
     });
-  };  
-
-  const buttonNew = () =>
-  {
-    console.log(remoteStream.getVideoTracks().length)
-  }
+  };
 
   return (
     <SafeAreaView style={{flex:1}}>
-      <ScrollView style={{marginBottom:79, width:"100%"}}>
-        <Button title="Create Offer" onPress={createOffer} />
-        <Button title="Show data" onPress={buttonNew} />
-        {remoteStream.getVideoTracks().length > 0 && <RTCView streamURL={remoteStream.toURL()} mirror={true} style={{ flex: 1 }} />}
-        {localStream && <RTCView streamURL={localStream.toURL()} mirror={true} style={{ flex: 1 }} />}
-      </ScrollView>
+      {localStream && <RTCView streamURL={localStream.toURL()} mirror={true} style={{ flex: 1 }} />}
       <Footer navigation={navigation}/>
     </SafeAreaView>
   );

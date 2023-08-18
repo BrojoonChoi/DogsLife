@@ -58,7 +58,6 @@ const Client = ({navigation}:any) => {
     navigation.navigate("Server")
   }
 
-
   const readOffer = async () => {
     const pc = new RTCPeerConnection(peerConstraints);
 
@@ -72,11 +71,16 @@ const Client = ({navigation}:any) => {
     setLocalStream(stream)
     stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
-    const offerRef = firebase.database().ref('offers/user1');
-    const snapshot:any = await Promise.race([offerRef.once('value'), timeoutPromise])
-    const offer = snapshot.val().sdp;
-    const offerDes = new RTCSessionDescription({sdp:offer._sdp, type:offer._type});
-    await pc.setRemoteDescription(offerDes);
+    try {
+      const offerRef = firebase.database().ref('offers/user1');
+      const snapshot:any = await Promise.race([offerRef.once('value'), timeoutPromise])
+      const offer = snapshot.val().sdp;
+      const offerDes = new RTCSessionDescription({sdp:offer._sdp, type:offer._type});
+      await pc.setRemoteDescription(offerDes);
+    }
+    catch {
+      return;
+    }
     
     // Create an answer and set it as local description
     const answer = await pc.createAnswer();
@@ -103,11 +107,6 @@ const Client = ({navigation}:any) => {
 
     setAskAgain(false);
   };
-
-  const buttonNew = () =>
-  {
-    console.log(remoteStream.getVideoTracks().length)
-  }
 
   return (
     <SafeAreaView style={{backgroundColor:"#FFFFFF", flex:1}}>
