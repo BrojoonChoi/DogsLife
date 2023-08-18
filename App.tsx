@@ -40,6 +40,8 @@ function App(): JSX.Element {
         <Stack.Screen name='Loading' component={LoadingView}/>
         <Stack.Screen name='Login' component={LoginView}/>
         <Stack.Screen name='Home' component={HomeView}/>
+        <Stack.Screen name='Client' component={ClientView}/>
+        <Stack.Screen name='Server' component={ServerView}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

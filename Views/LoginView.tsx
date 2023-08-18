@@ -42,12 +42,12 @@ function LoginView({navigation}: any):JSX.Element
 
     return (
         <SafeAreaView style={{backgroundColor:"#FFDFDE", ...Styles.mainBody}}>
-            <View style={{top:83, ...Styles.contentsContainer}}>
+            <View style={{top:83, flex:1}}>
                 <ImgLogo style={{width:260, height:248}}/>
                 <Text style={Styles.title}>강아지의 하루</Text>
             </View>
 
-            <View style={{top:150, ...Styles.contentsContainer}}>
+            <View style={{top:150, flex:1}}>
                 <TouchableOpacity style={{...Styles.loginButton}}>
                     <Text style={Styles.loginButtonText} onPress={() => onAppleButtonPress()}>Sign in with Apple</Text>
                 </TouchableOpacity>

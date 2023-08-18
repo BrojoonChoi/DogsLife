@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="97.5" height="58" viewBox="0 0 97.5 58">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="사각형_4036" data-name="사각형 4036" width="26" height="26" transform="translate(-18134 -17751)" fill="#ffb0b3" opacity="0.2"/>
+    </clipPath>
+    <clipPath id="clip-path-2">
+      <rect id="사각형_4040" data-name="사각형 4040" width="25.916" height="19.844" transform="translate(0 0)" fill="#ffb0b3"/>
+    </clipPath>
+  </defs>
+  <g id="nav_cctv" transform="translate(-360.5 -1086)">
+    <rect id="사각형_4031" data-name="사각형 4031" width="97.5" height="58" transform="translate(360.5 1086)" fill="#fff2f4"/>
+    <g id="그룹_19177" data-name="그룹 19177" transform="translate(-0.701)">
+      <g id="마스크_그룹_13" data-name="마스크 그룹 13" transform="translate(18531 18846)" clip-path="url(#clip-path)">
+        <g id="그룹_101" data-name="그룹 101" transform="translate(-18134 -17748)">
+          <g id="그룹_100" data-name="그룹 100" clip-path="url(#clip-path-2)">
+            <path id="패스_1119" data-name="패스 1119" d="M25.052,0H.864a.864.864,0,0,0,0,1.728H3.456v8.614a9.5,9.5,0,0,0,19.005,0V1.728h2.591a.864.864,0,1,0,0-1.728M20.733,10.342a7.775,7.775,0,0,1-15.55,0V1.728h15.55Z" fill="#ffb0b3"/>
+            <path id="패스_1120" data-name="패스 1120" d="M12.958,16.5a5.606,5.606,0,1,0-5.607-5.606A5.613,5.613,0,0,0,12.958,16.5m0-9.485a3.879,3.879,0,1,1-3.879,3.879,3.883,3.883,0,0,1,3.879-3.879" fill="#ffb0b3"/>
+            <path id="패스_1121" data-name="패스 1121" d="M18.355,5.6A1.094,1.094,0,1,0,17.261,4.5,1.094,1.094,0,0,0,18.355,5.6" fill="#ffb0b3"/>
+          </g>
+        </g>
+      </g>
+      <text id="CCTV" transform="translate(398 1135)" fill="#ffb0b3" font-size="12" font-family="Cafe24Syongsyong, Cafe24 Syongsyong"><tspan x="0" y="0">CCTV</tspan></text>
+    </g>
+  </g>
+</svg>

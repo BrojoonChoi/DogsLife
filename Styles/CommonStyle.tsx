@@ -6,6 +6,7 @@ const Styles = StyleSheet.create
     {
         flex: 1,
         alignItems:"center",
+        width:"100%",
     },
     footer:
     {
@@ -16,40 +17,27 @@ const Styles = StyleSheet.create
         backgroundColor: '#FFF2F4',
         width:"100%",
         height:58,
-        shadowOffset: { width: 0, height: -13 }, // 그림자 위치 (가로, 세로)
-        shadowOpacity:5,
-        shadowRadius: 50 // 그림자 반경
-    },
-    contentsContainer :
-    {
-        flex: 1,
+        flexDirection:"row",
+        justifyContent:"space-between"
     },
     bannerContainer :
     {
         alignItems:"center", 
         justifyContent:"center",
+        width: "100%",
+        height: 120,
+        marginBottom:48,
     },
     banner :
     {
+        alignItems:"center", 
+        justifyContent:"center",
         flex: 1,
-        width: 348,
-        height: 120,
+        width: 384,
+        height: "auto",
         borderRadius: 16,
         borderColor: '#FFCFD5',
-        borderWidth:1
-    },
-    contentsBigContainer :
-    {
-        flex: 2,
-    },
-    imageContainer :
-    {
-        borderRadius: 36,
-        padding:8,
-    },
-    spacer:
-    {
-        flex:0.5,
+        borderWidth:1,
     },
     background:
     {
@@ -104,6 +92,132 @@ const Styles = StyleSheet.create
         textAlign:'center',
         color:"#000000",
         fontWeight:"600",
+    },
+    leftRightPadding :
+    {
+        paddingLeft:21,
+        paddingRight:21,
+    },
+    viewMoreButton :
+    {   
+        height:46,
+        backgroundColor : "#FE8291",
+        borderRadius: 16,
+        justifyContent:"center",
+        alignItems:"center",
+        marginLeft:21,
+        marginRight:21,
+    },
+    viewMoreButtonText :
+    {
+        textAlign:'center',
+        textAlignVertical:'center',
+        color : "#FFFFFF",
+        fontFamily:"Cafe24Syongsyong",
+        fontSize:19,
+        letterSpacing:0.34,
+    },
+    camButton :
+    {   
+        width: 68,
+        height: 34,
+        backgroundColor : "#FFF2F4",
+        borderRadius: 21,
+        borderColor:"#FF7381",
+        borderWidth:1,
+        justifyContent:"center",
+        alignItems:"center",
+        marginLeft:14
+    },
+    camButtonText :
+    {
+        textAlign:'center',
+        textAlignVertical:'center',
+        color : "#FF7381",
+        fontFamily:"BMJUA_ttf",
+        fontSize:13,
+        letterSpacing:-0.13,
+    },
+    camImage :
+    {
+        borderRadius: 12,
+        borderColor:"#FFCFD5",
+        borderWidth:1,
+        width:146,
+        height:146,
+    },
+    timeLine :
+    {
+        backgroundColor : "#FFF7F9",
+        marginLeft:21,
+        marginRight:21,
+        padding:10,
+        borderRadius: 16,
+        borderColor:"#FFCFD5",
+        borderWidth:1,
+        marginBottom:16,
+    },
+    modalBackground :
+    {
+        backgroundColor :"#000000B3",
+        flex:1,
+    },
+    modalPopup :
+    {
+        backgroundColor :"#FAFAFA",
+        borderRadius:16,
+        height:223,
+    },
+    modalTitle :
+    {
+        paddingTop:48,
+        textAlign:'center',
+        textAlignVertical:'center',
+        color : "#FF99A0",
+        fontFamily:"BMJUA_ttf",
+        fontSize:24,
+        letterSpacing:-0.36,
+        paddingBottom:6,
+    },
+    modalText :
+    {
+        textAlign:'center',
+        textAlignVertical:'center',
+        color : "#616161",
+        fontFamily:"AppleSDGothicNeoM",
+        fontSize:15,
+        letterSpacing:-0.39,
+        paddingBottom:26,
+    },
+    modalBtnOK :
+    {
+        width:128,
+        height:48,
+        backgroundColor:"#FE8291",
+        borderRadius:24,
+        color : "#FE8291",
+        alignItems:"center",
+        justifyContent:"center",
+        margin:5,
+    },
+    modalBtnCancel :
+    {
+        width:128,
+        height:48,
+        backgroundColor:"#EEEEEE",
+        borderRadius:24,
+        color : "#616161",
+        alignItems:"center",
+        justifyContent:"center",
+        margin:5,
+    },
+    btnText :
+    {
+        textAlign:'center',
+        textAlignVertical:'center',
+        fontFamily:"AppleSDGothicNeoM",
+        fontSize:17,
+        letterSpacing:0.31,
     }
 })
 

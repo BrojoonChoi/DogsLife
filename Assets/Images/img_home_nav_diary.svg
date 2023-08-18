@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="97.5" height="58" viewBox="0 0 97.5 58">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="사각형_4034" data-name="사각형 4034" width="26" height="26" transform="translate(-18330 -17751)" fill="#ffb0b3" opacity="0.2"/>
+    </clipPath>
+    <clipPath id="clip-path-2">
+      <rect id="사각형_4038" data-name="사각형 4038" width="19.067" height="26" transform="translate(0 0)" fill="#ffb0b3"/>
+    </clipPath>
+  </defs>
+  <g id="nav_diary" transform="translate(-165 -1086)">
+    <rect id="사각형_4029" data-name="사각형 4029" width="97.5" height="58" transform="translate(165 1086)" fill="#fff2f4"/>
+    <g id="그룹_19174" data-name="그룹 19174" transform="translate(-0.701)">
+      <g id="마스크_그룹_15" data-name="마스크 그룹 15" transform="translate(18531.5 18846)" clip-path="url(#clip-path)">
+        <g id="그룹_97" data-name="그룹 97" transform="translate(-18327 -17751)">
+          <g id="그룹_96" data-name="그룹 96" clip-path="url(#clip-path-2)">
+            <path id="패스_1105" data-name="패스 1105" d="M18.2,3.467H15.6V.867a.867.867,0,0,0-1.734,0v2.6H10.4V.867a.867.867,0,1,0-1.734,0v2.6H5.2V.867a.867.867,0,1,0-1.734,0v2.6H.866A.866.866,0,0,0,0,4.334v20.8A.865.865,0,0,0,.866,26H18.2a.865.865,0,0,0,.866-.866V4.334a.866.866,0,0,0-.866-.867m-.867,20.8H1.733V5.2H3.466v.867a.867.867,0,1,0,1.734,0V5.2H8.666v.867a.867.867,0,1,0,1.734,0V5.2h3.466v.867a.867.867,0,1,0,1.734,0V5.2h1.733Z" fill="#ffb0b3"/>
+            <path id="패스_1106" data-name="패스 1106" d="M4.333,10.19h10.4a.867.867,0,1,0,0-1.733H4.333a.867.867,0,1,0,0,1.733" fill="#ffb0b3"/>
+            <path id="패스_1107" data-name="패스 1107" d="M4.333,13.368h10.4a.867.867,0,1,0,0-1.733H4.333a.867.867,0,1,0,0,1.733" fill="#ffb0b3"/>
+            <path id="패스_1108" data-name="패스 1108" d="M10.4,15.878a.867.867,0,0,0-.867-.867h-5.2a.867.867,0,0,0,0,1.734h5.2a.867.867,0,0,0,.867-.867" fill="#ffb0b3"/>
+            <path id="패스_1109" data-name="패스 1109" d="M14.549,20.814a2.2,2.2,0,0,0-3.487.286l-.753,1.172a.582.582,0,0,0,.581.89l1.386-.218a9.184,9.184,0,0,1,1.375-.113l1.4-.01a.583.583,0,0,0,.429-.973Z" fill="#ffb0b3"/>
+            <path id="패스_1110" data-name="패스 1110" d="M14.944,19.914a.739.739,0,0,0,.485.909.828.828,0,0,0,.291-1.587.738.738,0,0,0-.776.678" fill="#ffb0b3"/>
+            <path id="패스_1111" data-name="패스 1111" d="M12.748,18.329a.978.978,0,0,0,.761,1.134.978.978,0,0,0,.933-1,.978.978,0,0,0-.761-1.134.979.979,0,0,0-.933,1" fill="#ffb0b3"/>
+            <path id="패스_1112" data-name="패스 1112" d="M10.439,20.283a.739.739,0,0,0-.876-.543.828.828,0,0,0,.545,1.519.739.739,0,0,0,.331-.976" fill="#ffb0b3"/>
+            <path id="패스_1113" data-name="패스 1113" d="M11.265,17.53a.979.979,0,0,0-.566,1.243.978.978,0,0,0,1.082.832.979.979,0,0,0,.567-1.243.979.979,0,0,0-1.083-.832" fill="#ffb0b3"/>
+          </g>
+        </g>
+      </g>
+      <text id="DIARY" transform="translate(198.5 1135)" fill="#ffb0b3" font-size="12" font-family="Cafe24Syongsyong, Cafe24 Syongsyong"><tspan x="0" y="0">DIARY</tspan></text>
+    </g>
+  </g>
+</svg>

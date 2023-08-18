@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Button, SafeAreaView } from 'react-native';
+import { View, Button, SafeAreaView, ScrollView } from 'react-native';
 //import firebase from '@react-native-firebase/app'
 import database from '@react-native-firebase/database';
-import { RTCSessionDescription, RTCPeerConnection, mediaDevices, RTCIceCandidate, RTCView, MediaStream } from 'react-native-webrtc';
+import { RTCSessionDescription, RTCPeerConnection, mediaDevices, RTCIceCandidate, RTCView, MediaStream, } from 'react-native-webrtc';
 import {NavigationContainer, NavigationProp,} from '@react-navigation/native'
 import {createNativeStackNavigator,} from '@react-navigation/native-stack'
+import Footer from '../Components/Footer'
 
 let peerConstraints = {
 	iceServers: [
@@ -25,7 +26,7 @@ let mediaConstraints = {
 	video: true,
 };
 
-const User1 = () => {
+const Server = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState(new MediaStream());
   const [localStream, setLocalStream] = useState(null);
 
@@ -90,13 +91,16 @@ const User1 = () => {
   }
 
   return (
-    <View style={{flex:1}}>
-      <Button title="Create Offer" onPress={createOffer} />
-      <Button title="Show data" onPress={buttonNew} />
-      {remoteStream.getVideoTracks().length > 0 && <RTCView streamURL={remoteStream.toURL()} mirror={true} style={{ flex: 1 }} />}
-      {localStream && <RTCView streamURL={localStream.toURL()} mirror={true} style={{ flex: 1 }} />}
-    </View>
+    <SafeAreaView style={{flex:1}}>
+      <ScrollView style={{marginBottom:79, width:"100%"}}>
+        <Button title="Create Offer" onPress={createOffer} />
+        <Button title="Show data" onPress={buttonNew} />
+        {remoteStream.getVideoTracks().length > 0 && <RTCView streamURL={remoteStream.toURL()} mirror={true} style={{ flex: 1 }} />}
+        {localStream && <RTCView streamURL={localStream.toURL()} mirror={true} style={{ flex: 1 }} />}
+      </ScrollView>
+      <Footer navigation={navigation}/>
+    </SafeAreaView>
   );
 };
 
-export default User1;
+export default Server;

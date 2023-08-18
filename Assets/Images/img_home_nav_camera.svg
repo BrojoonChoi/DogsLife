@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="97.5" height="58" viewBox="0 0 97.5 58">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="사각형_4035" data-name="사각형 4035" width="26" height="26" transform="translate(-18232 -17751)" fill="#ffb0b3" opacity="0.2"/>
+    </clipPath>
+    <clipPath id="clip-path-2">
+      <rect id="사각형_4039" data-name="사각형 4039" width="25.802" height="24.082" transform="translate(0 0)" fill="#ffb0b3"/>
+    </clipPath>
+  </defs>
+  <g id="nav_camera" transform="translate(-263 -1086)">
+    <rect id="사각형_4030" data-name="사각형 4030" width="97.5" height="58" transform="translate(263 1086)" fill="#fff2f4"/>
+    <g id="그룹_19175" data-name="그룹 19175" transform="translate(-0.199)">
+      <g id="마스크_그룹_14" data-name="마스크 그룹 14" transform="translate(18531 18846)" clip-path="url(#clip-path)">
+        <g id="그룹_99" data-name="그룹 99" transform="translate(-18232 -17750)">
+          <g id="그룹_98" data-name="그룹 98" clip-path="url(#clip-path-2)">
+            <path id="패스_1114" data-name="패스 1114" d="M24.942,1.72h-.871V.86a.86.86,0,0,0-.86-.86H18.656a.86.86,0,0,0-.86.86v.86H16.513V.86a.859.859,0,0,0-.86-.86H13.64a.86.86,0,0,0-.86.86v.86H.86A.86.86,0,0,0,0,2.58V23.222a.86.86,0,0,0,.86.86H24.942a.86.86,0,0,0,.86-.86V2.58a.86.86,0,0,0-.86-.86M13.64,3.44H24.082v8.6H23a6.316,6.316,0,0,0-12.524,0H1.72V3.44ZM21.361,12.9a4.629,4.629,0,1,1-4.628-4.629A4.633,4.633,0,0,1,21.361,12.9M1.72,22.362v-8.6h8.751a6.316,6.316,0,0,0,12.524,0h1.087v8.6Z" fill="#ffb0b3"/>
+            <path id="패스_1115" data-name="패스 1115" d="M3.648,8.022H6.783a.99.99,0,0,0,0-1.979H3.648a.99.99,0,0,0,0,1.979" fill="#ffb0b3"/>
+            <path id="패스_1116" data-name="패스 1116" d="M3.388,17.87H7.512a.495.495,0,1,0,0-.989H3.388a.495.495,0,1,0,0,.989" fill="#ffb0b3"/>
+            <path id="패스_1117" data-name="패스 1117" d="M10.151,18.39H3.388a.495.495,0,1,0,0,.989h6.763a.495.495,0,1,0,0-.989" fill="#ffb0b3"/>
+            <path id="패스_1118" data-name="패스 1118" d="M22.409,8.022a.8.8,0,1,0-.8-.8.8.8,0,0,0,.8.8" fill="#ffb0b3"/>
+          </g>
+        </g>
+      </g>
+      <text id="CAMERA" transform="translate(292 1135)" fill="#ffb0b3" font-size="12" font-family="Cafe24Syongsyong, Cafe24 Syongsyong"><tspan x="0" y="0">CAMERA</tspan></text>
+    </g>
+  </g>
+</svg>
