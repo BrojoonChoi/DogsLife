@@ -29,17 +29,6 @@ const Client = ({navigation}:any) => {
   const [askAgain, setAskAgain] = useState(true);
   const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken} = useContext(GlobalContext)
   const [inputBoxVisible, setInputBoxVisible] = useState(false);
-
-  const timeoutPromise = new Promise((resolve, reject) => {
-    return (
-      setTimeout(() => {
-        //reject(new Error('Timeout while waiting for data.'));
-        if (askAgain) {
-          AskCameraSetting()
-        }
-      }, 3000)
-    )
-  })
   
   const handleModal = () => {
   };
@@ -57,7 +46,6 @@ const Client = ({navigation}:any) => {
 
   const startProcess = (salt:string) => {
     setInputBoxVisible(false);
-    console.log(salt)
     readOffer(salt);
   }
 
@@ -76,21 +64,27 @@ const Client = ({navigation}:any) => {
     
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
     setLocalStream(stream)
-    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    //stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
-    try {
-      const offerRef = firebase.database().ref(`offers/${userToken}`);
-      const snapshot:any = await Promise.race([offerRef.once('value'), timeoutPromise])
-      const offer = snapshot.val().sdp;
-      const offerDes = new RTCSessionDescription({
-        sdp:decryptWithSalt(offer._sdp, salt),
-        type:decryptWithSalt(offer._type, salt),
-      });
-      await pc.setRemoteDescription(offerDes);
-    }
-    catch {
-      return;
-    }
+    const offerRef = firebase.database().ref(`offers/${userToken}`);
+
+    offerRef.on("value", (snap) => {
+      if (snap.val() != null) {
+        console.log("connected");
+      } else {
+        console.log("not connected");
+        AskCameraSetting();
+        return;
+      }
+    })
+
+    const snapshot = await offerRef.once('value')
+    const offer = snapshot.val().sdp;
+    const offerDes = new RTCSessionDescription({
+      sdp:decryptWithSalt(offer._sdp, salt),
+      type:decryptWithSalt(offer._type, salt),
+    });
+    await pc.setRemoteDescription(offerDes);
     
     // Create an answer and set it as local description
     const answer = await pc.createAnswer();

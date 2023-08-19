@@ -37,7 +37,7 @@ const Server = ({navigation}:any) => {
   const startProcess = () => {
     const salt = generateSalt();
     ShowNotification(salt, "일상용 핸드폰에 이 번호를 입력하세요.")
-    createOffer("1234");
+    createOffer(salt);
   }
 
   const createOffer = async (salt:string) => {
