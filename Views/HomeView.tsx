@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import type {PropsWithChildren} from 'react';
 import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View, Image, Alert, Button, Platform, TouchableOpacity } from 'react-native';
+import { GoogleSignin, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
 import Styles from '../Styles/CommonStyle';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Swiper from 'react-native-swiper';
+import firebase from '@react-native-firebase/app'
 import storage from '@react-native-firebase/storage';
 import database from '@react-native-firebase/database';
 import Footer from '../Components/Footer'
@@ -62,6 +64,14 @@ function HomeView({navigation}:any):JSX.Element
     const LoadMore = () => {
         console.log()
     }
+
+    const onSettingClick = async () => {
+        await firebase.auth().signOut();
+        await GoogleSignin.revokeAccess();
+        await GoogleSignin.signOut();
+        console.log("sign out");
+        navigation.navigate("Loading");
+    }
     
     return (
         <SafeAreaView style={{backgroundColor:"#FFFFFF", justifyContent:'flex-start', ...Styles.mainBody}}>
@@ -73,9 +83,9 @@ function HomeView({navigation}:any):JSX.Element
                         <ImgLogo style={{width:40, height:40}}/>
                         <Text style={{color:"#FF99A0", fontSize:20, fontFamily:"Cafe24Syongsyong"}}>강아지의 하루</Text>
                     </View>
-                    <View style={{flexDirection:"row", alignItems:"center", }}>
+                    <TouchableOpacity style={{flexDirection:"row", alignItems:"center", }} onPress={() => onSettingClick()}>
                         <SettingIcon style={{width:40, height:40}}/>
-                    </View>
+                    </TouchableOpacity>
                 </View>
 
                 {/*Banner zone*/}

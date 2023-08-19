@@ -2,17 +2,11 @@ import React, {useState, useContext, createContext} from 'react';
 import {Alert, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Styles from '../Styles/CommonStyle';
 import ModalNotification from './ModalNotification';
-import CyptoJS from 'crypto-js'
+import CryptoJS from 'rn-crypto-js'
 
-interface EncryptedData {
-    ciphertext: string;
-    salt: string;
-  }
-  
   // 데이터와 솔트를 사용하여 암호화
-const encryptWithSalt = (data: string, salt: string): EncryptedData => {
-    const encryptedData = CryptoJS.AES.encrypt(data, salt).toString();
-    return { ciphertext: encryptedData, salt };
+const encryptWithSalt = (data: string, salt: string) => {
+    return (CryptoJS.AES.encrypt(data.toString(), salt).toString())
 };
   
   // 암호화된 데이터를 복호화
@@ -63,7 +57,8 @@ export function GlobalContextProvider ({children}:any) {
 
     return (
         <GlobalContext.Provider value={{
-            userToken, generateSalt, encryptWithSalt, decryptWithSalt,
+            userToken, setUserToken,
+            generateSalt, encryptWithSalt, decryptWithSalt,
             modalTitle, modalText, onModalClose, 
             modalNotificationVisible, ShowNotification,
             modalOKCancelVisible, ShowOKCancel, onModalOK

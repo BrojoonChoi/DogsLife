@@ -212,6 +212,19 @@ const Styles = StyleSheet.create
         justifyContent:"center",
         margin:5,
     },
+    modalTextBox : {
+        textAlign:'center',
+        textAlignVertical:'center',
+        fontFamily:"AppleSDGothicNeoM",
+        fontSize:16,
+        letterSpacing:0.31,
+        borderRadius: 16,
+        borderColor:"#FFCFD5",
+        borderWidth:1,
+        width:48,
+        height:48,
+        margin:4,
+    },
     btnText :
     {
         textAlign:'center',

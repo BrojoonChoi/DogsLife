@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Footer from '../Components/Footer'
 import CameraList from '../Components/CameraList';
 import GlobalContext from '../Components/GlobalContext';
+import NumberVerificationScreen from '../Components/ModalNumberInput';
 
 let peerConstraints = {
 	iceServers: [
@@ -26,8 +27,8 @@ const Client = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState(new MediaStream());
   const [localStream, setLocalStream] = useState(null);
   const [askAgain, setAskAgain] = useState(true);
-  const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt} = useContext(GlobalContext)
-  const tempSalt = "1234"
+  const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken} = useContext(GlobalContext)
+  const [inputBoxVisible, setInputBoxVisible] = useState(false);
 
   const timeoutPromise = new Promise((resolve, reject) => {
     return (
@@ -45,13 +46,23 @@ const Client = ({navigation}:any) => {
 
   useEffect(() => {
     if (askAgain)
-      readOffer(tempSalt);
+      setInputBoxVisible(true);
     return () => handleModal();
   }, [])
 
   const AskCameraSetting = () => {
     setAskAgain(false);
     ShowOKCancel("카메라가 없습니다!", "카메라를 설정하러 갈까요?", () => (navigation.navigate("Server")) )
+  }
+
+  const startProcess = (salt:string) => {
+    setInputBoxVisible(false);
+    console.log(salt)
+    readOffer(salt);
+  }
+
+  const onModalClose = () => {
+    setInputBoxVisible(false)
   }
 
   const readOffer = async (salt:string) => {
@@ -68,10 +79,13 @@ const Client = ({navigation}:any) => {
     stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
     try {
-      const offerRef = firebase.database().ref('offers/user1');
+      const offerRef = firebase.database().ref(`offers/${userToken}`);
       const snapshot:any = await Promise.race([offerRef.once('value'), timeoutPromise])
-      const offer = decryptWithSalt(snapshot.val().sdp, salt);
-      const offerDes = new RTCSessionDescription({sdp:offer._sdp, type:offer._type});
+      const offer = snapshot.val().sdp;
+      const offerDes = new RTCSessionDescription({
+        sdp:decryptWithSalt(offer._sdp, salt),
+        type:decryptWithSalt(offer._type, salt),
+      });
       await pc.setRemoteDescription(offerDes);
     }
     catch {
@@ -83,7 +97,7 @@ const Client = ({navigation}:any) => {
     await pc.setLocalDescription(answer);
     
     // Listen for ICE candidates and add them to the connection  
-    const candidateRefClient = database().ref('candidates/user1/client');
+    const candidateRefClient = database().ref(`candidates/${userToken}/client`);
     candidateRefClient.remove()
     pc.onicecandidate = (event) => {
       if (event.candidate) {
@@ -92,10 +106,14 @@ const Client = ({navigation}:any) => {
     };
 
     // Store the answer (SDP) in Firebase
-    const answerRef = database().ref('answers/user1');
-    await answerRef.set({ sdp: encryptWithSalt(pc.localDescription, salt) });
+    const answerRef = database().ref(`answers/${userToken}`);
+    const rawData:any = {
+      _sdp:encryptWithSalt(pc.localDescription._sdp, salt),
+      _type:encryptWithSalt(pc.localDescription._type, salt)
+    }
+    await answerRef.set({ sdp: rawData });
 
-    const candidateRefServer = database().ref('candidates/user1/server');
+    const candidateRefServer = database().ref(`candidates/${userToken}/server`);
     candidateRefServer.on('child_added', (snapshot) => {
       const candidate = new RTCIceCandidate(snapshot.val());
       pc.addIceCandidate(candidate)
@@ -120,6 +138,7 @@ const Client = ({navigation}:any) => {
       </View>
 
       <Footer navigation={navigation}/>
+      <NumberVerificationScreen modalVisible={inputBoxVisible} setAuth={startProcess} onModalClose={onModalClose}/>
     </SafeAreaView>
   );
 }

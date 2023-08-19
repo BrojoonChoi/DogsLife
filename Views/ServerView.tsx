@@ -28,7 +28,7 @@ let mediaConstraints = {
 const Server = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState(new MediaStream());
   const [localStream, setLocalStream] = useState(null);
-  const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt} = useContext(GlobalContext)
+  const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt, userToken} = useContext(GlobalContext)
 
   useEffect (() => {
     ShowOKCancel("알림", "카메라 설정을 시작합니다.", () => (startProcess()) )
@@ -58,14 +58,18 @@ const Server = ({navigation}:any) => {
     await pc.setLocalDescription(offer);
 
     // Store the offer (SDP) in Firebase
-    const offerRef = database().ref('offers/user1');
+    const offerRef = database().ref(`offers/${userToken}`);
     if (pc.localDescription) {
-      offerRef.set({ sdp: encryptWithSalt(pc.localDescription, salt) });
+      const rawData:any = {
+        _sdp:encryptWithSalt(pc.localDescription._sdp, salt),
+        _type:encryptWithSalt(pc.localDescription._type, salt)
+      }
+      offerRef.set({ sdp: rawData });
     } else {
       console.error('Error: Local description is undefined');
     }
     
-    const candidateRefServer = database().ref('candidates/user1/server');
+    const candidateRefServer = database().ref(`candidates/${userToken}/server`);
     candidateRefServer.remove()
     pc.onicecandidate = (event) => {
       if (event.candidate) {
@@ -73,17 +77,20 @@ const Server = ({navigation}:any) => {
       }
     };
 
-    const answerRef = database().ref('answers/user1');
+    const answerRef = database().ref(`answers/${userToken}`);
     answerRef.remove()
     answerRef.on('child_added', async (snapshot) => {
-      const answer = decryptWithSalt(snapshot.val(), salt);
+      const answer = await snapshot.val();
       if (answer != undefined) {
-        const answerDes = new RTCSessionDescription({sdp:answer._sdp, type:answer._type});
+        const answerDes = new RTCSessionDescription({
+          sdp:decryptWithSalt(answer._sdp, salt),
+          type:decryptWithSalt(answer._type, salt),
+        });
         await pc.setRemoteDescription(answerDes);
       }
     });
     
-    const candidateRefClient = database().ref('candidates/user1/client');
+    const candidateRefClient = database().ref(`candidates/${userToken}/client`);
     candidateRefClient.remove()
     candidateRefClient.on('child_added', (snapshot) => {
       const candidate = new RTCIceCandidate(snapshot.val());
