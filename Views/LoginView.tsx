@@ -16,7 +16,7 @@ function LoginView({navigation}: any):JSX.Element
             const { idToken } = await GoogleSignin.signIn();
             const googleCredential = auth.GoogleAuthProvider.credential(idToken);
             auth().signInWithCredential(googleCredential);
-            navigation.reset({routes: [{name: 'Home'}]})
+            navigation.reset({routes: [{name: 'Loading'}]})
         }
         catch(e)
         {
@@ -31,7 +31,7 @@ function LoginView({navigation}: any):JSX.Element
             const { idToken } = await GoogleSignin.signIn();
             const googleCredential = auth.GoogleAuthProvider.credential(idToken);
             auth().signInWithCredential(googleCredential);
-            navigation.reset({routes: [{name: 'Home'}]})
+            navigation.reset({routes: [{name: 'Loading'}]})
         }
         catch(e)
         {
@@ -49,7 +49,7 @@ function LoginView({navigation}: any):JSX.Element
 
             <View style={{top:150, flex:1}}>
                 <TouchableOpacity style={{...Styles.loginButton}}>
-                    <Text style={Styles.loginButtonText} onPress={() => onAppleButtonPress()}>Sign in with Apple</Text>
+                    <Text style={Styles.loginButtonText} onPress={() => onAppleButtonPress()}>Login in with Apple</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={{...Styles.loginButton}}>
                     <Text style={Styles.loginButtonText} onPress={() => onGoogleButtonPress()}>Login in with GOOGLE</Text> 

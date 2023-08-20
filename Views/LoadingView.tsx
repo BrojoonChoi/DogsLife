@@ -1,34 +1,36 @@
 import React, { useEffect, useState, useContext } from 'react';
 import type {PropsWithChildren} from 'react';
-import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View, Image, Alert, Button, Platform } from 'react-native';
-import { GoogleSignin, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
+import { SafeAreaView, Text, View, Alert, Platform } from 'react-native';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth'
+import storage from '@react-native-firebase/storage'
+import firebase from '@react-native-firebase/app'
 import Styles from '../Styles/CommonStyle';
 import { request, PERMISSIONS } from 'react-native-permissions';
 import GlobalContext from '../Components/GlobalContext';
-import firebase from '@react-native-firebase/app'
 
 import ImgBackground from '../Assets/Images/img_loading_background.svg'
 import ImgLogo from '../Assets/Images/img_loading_logo.svg'
 
-const firebaseConfig = {
-    apiKey: "AIzaSyBny7zuFlGUdjVokhr0SVDBjCIE6RJ76Rk",
-    authDomain: "dogs-5344e.firebaseapp.com",
-    databaseURL: "https://dogs-5344e-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "dogs-5344e",
-    storageBucket: "dogs-5344e.appspot.com",
-    messagingSenderId: "21242744532",
-    appId: "1:21242744532:web:f875a98f44a81e607cb541",
-    measurementId: "G-4GN4G7K6CC"
-  };
-  
-const googleSigninConfigure = () => GoogleSignin.configure({webClientId:'21242744532-tpjf2a06f38c0p4kq3c3gqvc9bntqtrj.apps.googleusercontent.com',})
-  
-firebase.initializeApp(firebaseConfig);
-
-function LoadingView({navigation}: any):JSX.Element
+function LoadingView({navigation, dataList}: any):JSX.Element
 {
-    const {userToken, setUserToken} = useContext(GlobalContext);
+    const {userToken, setUserToken, GlobalWidth, GlobalHeight} = useContext(GlobalContext);
+
+    const DownloadBanner = async() =>
+    {
+        const firebasePath:any = [];
+        const result = await storage().ref(`Images/`).list().then((result) => result.items);
+        result.map((item:any) => firebasePath.push(item["path"]));
+    
+        const imgURLs:any = [];
+        await Promise.all(firebasePath.map(async (path:string)  => imgURLs.push(await storage().ref(path).getDownloadURL())));
+        return imgURLs;
+    }
+
+    const Home = async () => {
+        const dataList = {imageList:await DownloadBanner(), dummy:"test"};
+        navigation.reset({routes: [{ name: 'Home', params: { dataList: dataList } }] })
+    }
 
     const requestMediaPermissions = async () => {
         const isAndroid = Platform.OS === 'android';
@@ -53,9 +55,8 @@ function LoadingView({navigation}: any):JSX.Element
     })
 
     useEffect (() => {
-        googleSigninConfigure()
         requestMediaPermissions();
-        sleep(1000); 
+        sleep(500); 
         
         const checkAutoLogin = async () => {
             try 
@@ -64,8 +65,7 @@ function LoadingView({navigation}: any):JSX.Element
                 const { idToken } = await GoogleSignin.signIn();
                 const googleCredential = auth.GoogleAuthProvider.credential(idToken);
                 auth().signInWithCredential(googleCredential);
-                
-                navigation.reset({routes: [{name: 'Home'}]})
+                Home();
             }
             catch(e)
             {
@@ -78,13 +78,14 @@ function LoadingView({navigation}: any):JSX.Element
     },[])
 
     return (
-        <SafeAreaView style={Styles.mainBody}>
-            <ImgBackground style={Styles.background}/>
+        <View style={Styles.mainBody}>
+            <ImgBackground width={GlobalWidth*1.05} height={GlobalHeight} style={Styles.background}/>
+            {/*<ImgBackground style={{width:GlobalWidth, height:GlobalHeight}}/>*/}
             <View style={{alignItems:"center", top:210}}>
-                <ImgLogo style={Styles.logo}/>
+                <ImgLogo width={210} height={176}/>
                 <Text style={Styles.title}>강아지의 하루</Text>
             </View>
-        </SafeAreaView>
+        </View>
     );
 }
 

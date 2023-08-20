@@ -14,16 +14,16 @@ function Footer({navigation}:any):JSX.Element
         <View style={Styles.footer}>
             <Shadow startColor='#0000000A' distance={13} offset={[0, 0]} style={{width:"100%"}}/>
             <TouchableOpacity>
-                <ImgNavHome style={{width:58, height:58}} onPress={() => navigation.navigate("Home")}/>
+                <ImgNavHome width={58} height={58} onPress={() => navigation.navigate("Home")}/>
             </TouchableOpacity>
             <TouchableOpacity>
-                <ImgNavDiary style={{width:58, height:58}} onPress={() => navigation.navigate("Home")}/>
+                <ImgNavDiary width={58} height={58} onPress={() => navigation.navigate("Home")}/>
             </TouchableOpacity>
             <TouchableOpacity>
-                <ImgNavCamera style={{width:58, height:58}} onPress={() => navigation.navigate("Server")}/>
+                <ImgNavCamera width={58} height={58} onPress={() => navigation.navigate("Server")}/>
             </TouchableOpacity>
             <TouchableOpacity>
-                <ImgNavCCTV style={{width:58, height:58}} onPress={() => navigation.navigate("Client")}/>
+                <ImgNavCCTV width={58} height={58} onPress={() => navigation.navigate("Client")}/>
             </TouchableOpacity>
         </View>
     );

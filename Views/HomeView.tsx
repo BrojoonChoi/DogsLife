@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import type {PropsWithChildren} from 'react';
 import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View, Image, Alert, Button, Platform, TouchableOpacity } from 'react-native';
 import { GoogleSignin, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
@@ -7,36 +7,22 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Swiper from 'react-native-swiper';
 import firebase from '@react-native-firebase/app'
-import storage from '@react-native-firebase/storage';
 import database from '@react-native-firebase/database';
 import Footer from '../Components/Footer'
 import CameraList from '../Components/CameraList';
+import GlobalContext from '../Components/GlobalContext';
 
 import ImgLogo from '../Assets/Images/img_home_logo_small.svg'
 import SettingIcon from '../Assets/Images/img_home_setting.svg'
 
-function HomeView({navigation}:any):JSX.Element
+function HomeView({navigation, route}:any):JSX.Element
 {
+    const { dataList } = route.params;
+
     useEffect (() =>
     {
-        downloadImage()
+        console.log(dataList.imageList)
     }, [])
-
-    const [imageList, setImageList] = useState(undefined)
-    const [imageLoaded, setImageLoaded] =useState(false)
-    const downloadImage = async() =>
-    {
-        const firebasePath:any = []
-        const result = await storage().ref(`Images/`).list().then((result) => result.items)
-        result.map((item:any) => firebasePath.push(item["path"]))
-
-        const imgURLs:any = []
-        await Promise.all(firebasePath.map(async (path:string)  => imgURLs.push(await storage().ref(path).getDownloadURL())))
-
-        setImageList(imgURLs)
-        console.log("called")
-        setImageLoaded(true)
-    }
 
     const dummyData = {api:[{title:"2023.01.01 12:00", text:"잔다."}, {title:"2023.01.02 12:00", text:"잔다."}, {title:"2023.01.03 12:00", text:"잔다."}, {title:"2023.01.04 12:00", text:"잔다."}]}
     const CamHistory = (title:string, text:string, key:any) => {
@@ -80,11 +66,11 @@ function HomeView({navigation}:any):JSX.Element
                 {/*Header*/}
                 <View style={{justifyContent:"space-between", flexDirection:"row", width:"100%", paddingTop:20, paddingBottom:20, ...Styles.leftRightPadding}}>
                     <View style={{flexDirection:"row", alignItems:"center", }}>
-                        <ImgLogo style={{width:40, height:40}}/>
+                        <ImgLogo width={40} height={40}/>
                         <Text style={{color:"#FF99A0", fontSize:20, fontFamily:"Cafe24Syongsyong"}}>강아지의 하루</Text>
                     </View>
                     <TouchableOpacity style={{flexDirection:"row", alignItems:"center", }} onPress={() => onSettingClick()}>
-                        <SettingIcon style={{width:40, height:40}}/>
+                        <SettingIcon width={40} height={40}/>
                     </TouchableOpacity>
                 </View>
 
@@ -92,7 +78,7 @@ function HomeView({navigation}:any):JSX.Element
                 <View style={{width:"100%", alignItems:"center", justifyContent:"center",}}>
                     <View style={Styles.bannerContainer}>
                         {
-                            imageLoaded == false ? <Image source={require("../Assets/Images/img_home_banner_loading.png")} style={Styles.banner}/> :
+                            dataList.imageList == undefined ? <Image source={require("../Assets/Images/img_home_banner_loading.png")} style={Styles.banner}/> :
                             <Swiper 
                             autoplay={true} 
                             showsPagination={true}
@@ -103,7 +89,7 @@ function HomeView({navigation}:any):JSX.Element
                             autoplayTimeout={3} 
                             activeDotColor='#FFCFD5' dotColor='#FFF2F4'>
                             {
-                                imageList?.map((image:any, key:any) =>
+                                dataList.imageList?.map((image:any, key:any) =>
                                 {
                                     return (<Image source={{uri:image}} key={`key${key}${image}`} style={Styles.banner}/>)
                                 })
