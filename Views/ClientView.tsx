@@ -49,6 +49,7 @@ const Client = ({navigation}:any) => {
 
   const onDataInput = (salt:string) => {
     setInputBoxVisible(false);
+    storeData("secret", salt)
     readOffer(salt);
   }
 
@@ -81,13 +82,18 @@ const Client = ({navigation}:any) => {
       }
     })
 
-    const snapshot = await offerRef.once('value')
-    const offer = snapshot.val().sdp;
-    const offerDes = new RTCSessionDescription({
-      sdp:decryptWithSalt(offer._sdp, salt),
-      type:decryptWithSalt(offer._type, salt),
-    });
-    await pc.setRemoteDescription(offerDes);
+    try {
+      const snapshot = await offerRef.once('value')
+      const offer = snapshot.val().sdp;
+      const offerDes = new RTCSessionDescription({
+        sdp:decryptWithSalt(offer._sdp, salt),
+        type:decryptWithSalt(offer._type, salt),
+      });
+      await pc.setRemoteDescription(offerDes);
+    } catch {
+      setInputBoxVisible(true)
+      return;
+    }
     
     // Create an answer and set it as local description
     const answer = await pc.createAnswer();

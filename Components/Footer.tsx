@@ -12,7 +12,31 @@ function Footer({navigation}:any):JSX.Element
 {
     return (
         <View style={Styles.footer}>
-            <Shadow startColor='#0000000A' distance={13} offset={[0, 0]} style={{width:"100%"}}/>
+            <Shadow startColor='#0000000A' distance={13} offset={[0, -13]} style={{width:"100%"}}/>
+            <TouchableOpacity>
+                <ImgNavHome onPress={() => navigation.navigate("Home")}/>
+            </TouchableOpacity>
+            <TouchableOpacity>
+                <ImgNavDiary onPress={() => navigation.navigate("Home")}/>
+            </TouchableOpacity>
+            <TouchableOpacity>
+                <ImgNavCamera onPress={() => navigation.navigate("Server")}/>
+            </TouchableOpacity>
+            <TouchableOpacity>
+                <ImgNavCCTV onPress={() => navigation.navigate("Client")}/>
+            </TouchableOpacity>
+        </View>
+    );
+}
+
+export default Footer
+
+/*
+function Footer({navigation}:any):JSX.Element
+{
+    return (
+        <View style={Styles.footer}>
+            <Shadow startColor='#0000000A' distance={13} offset={[0, -13]} style={{width:"100%"}}/>
             <TouchableOpacity>
                 <ImgNavHome width={58} height={58} onPress={() => navigation.navigate("Home")}/>
             </TouchableOpacity>
@@ -28,5 +52,4 @@ function Footer({navigation}:any):JSX.Element
         </View>
     );
 }
-
-export default Footer
+*/

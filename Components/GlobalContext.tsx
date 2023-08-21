@@ -30,7 +30,6 @@ const GetCachePath = async (path:string) => {
             await RNFS.mkdir(dir);
         }
         else {
-            console.log("있어유.")
         }
         
         return (`${dir}${path.substring(path.lastIndexOf('/') + 1, path.length)}`)
@@ -64,6 +63,7 @@ const storeData = async (type: string, value:string) => {
 const getData = async (type: string) => {
   try {
     const value = await AsyncStorage.getItem(type);
+    console.log(value);
     return value;
   } catch (e) {
     return null;

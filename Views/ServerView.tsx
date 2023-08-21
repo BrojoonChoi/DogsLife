@@ -31,10 +31,10 @@ const Server = ({navigation}:any) => {
   const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt, userToken} = useContext(GlobalContext)
 
   useEffect (() => {
-    ShowOKCancel("알림", "카메라 설정을 시작합니다.", () => (startProcess()) )
+    ShowOKCancel("알림", "카메라 설정을 시작합니다.", () => (StartProcess()) )
   },[])
 
-  const startProcess = () => {
+  const StartProcess = () => {
     const salt = generateSalt();
     ShowNotification(salt, "일상용 핸드폰에 이 번호를 입력하세요.")
     createOffer(salt);
@@ -96,6 +96,13 @@ const Server = ({navigation}:any) => {
       const candidate = new RTCIceCandidate(snapshot.val());
       pc.addIceCandidate(candidate)
     });
+
+    pc.addEventListener( 'connectionstatechange', event => {
+      switch( pc.connectionState ) {
+        case 'closed':    
+          break;
+      };
+    } );
   };
 
   return (
