@@ -27,15 +27,14 @@ const Client = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState(new MediaStream());
   const [localStream, setLocalStream] = useState(null);
   const [askAgain, setAskAgain] = useState(true);
-  const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken} = useContext(GlobalContext)
+  const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext(GlobalContext)
   const [inputBoxVisible, setInputBoxVisible] = useState(false);
   
   const handleModal = () => {
   };
 
   useEffect(() => {
-    if (askAgain)
-      setInputBoxVisible(true);
+    StartProcess();
     return () => handleModal();
   }, [])
 
@@ -44,7 +43,11 @@ const Client = ({navigation}:any) => {
     ShowOKCancel("카메라가 없습니다!", "카메라를 설정하러 갈까요?", () => (navigation.navigate("Server")) )
   }
 
-  const startProcess = (salt:string) => {
+  const StartProcess = async () => {
+    await getData("secret").then((result:string) => result !== null ? onDataInput(result) : setInputBoxVisible(true));
+  }
+
+  const onDataInput = (salt:string) => {
     setInputBoxVisible(false);
     readOffer(salt);
   }
@@ -132,7 +135,7 @@ const Client = ({navigation}:any) => {
       </View>
 
       <Footer navigation={navigation}/>
-      <NumberVerificationScreen modalVisible={inputBoxVisible} setAuth={startProcess} onModalClose={onModalClose}/>
+      <NumberVerificationScreen modalVisible={inputBoxVisible} onDataInput={onDataInput} onModalClose={onModalClose}/>
     </SafeAreaView>
   );
 }

@@ -3,7 +3,7 @@ import {Alert, Modal, StyleSheet, Text, TouchableOpacity, View, TextInput} from 
 import Styles from '../Styles/CommonStyle';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const NumberVerificationScreen = ({setAuth, modalVisible, onModalClose}:any) => {
+const NumberVerificationScreen = ({onDataInput, modalVisible, onModalClose}:any) => {
   const input1Ref = useRef(null);
   const input2Ref = useRef(null);
   const input3Ref = useRef(null);
@@ -23,7 +23,7 @@ const NumberVerificationScreen = ({setAuth, modalVisible, onModalClose}:any) => 
     if (digit3 == "")
       return;
 
-    setAuth(verificationCode);
+      onDataInput(verificationCode);
   };
 
   const TextVerification = (boxID:string, text:string) => {
