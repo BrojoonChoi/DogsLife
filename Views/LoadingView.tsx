@@ -14,18 +14,27 @@ import ImgLogo from '../Assets/Images/img_loading_logo.svg'
 
 function LoadingView({navigation, dataList}: any):JSX.Element
 {
-    const {userToken, setUserToken, GlobalWidth, GlobalHeight} = useContext(GlobalContext);
+    const {userToken, setUserToken, GlobalWidth, GlobalHeight, GetCachePath, CheckCacheFile, SaveCacheFile} = useContext(GlobalContext);
 
-    const DownloadBanner = async() =>
-    {
+    const DownloadBanner = async() => {
         const firebasePath:any = [];
         const result = await storage().ref(`Images/`).list().then((result) => result.items);
         result.map((item:any) => firebasePath.push(item["path"]));
     
-        const imgURLs:any = [];
-        await Promise.all(firebasePath.map(async (path:string)  => imgURLs.push(await storage().ref(path).getDownloadURL())));
-        return imgURLs;
+        const imageList:any = []
+        await Promise.all(firebasePath.map(async (path:string)  => {
+            const tempPath = await GetCachePath(path);
+            try {
+                await CheckCacheFile(tempPath) ? 
+                imageList.push(tempPath) :
+                await storage().ref(path).getDownloadURL().then((url) => SaveCacheFile(url, tempPath)).then(imageList.push(tempPath))
+            }catch (exception) {
+                console.log("test : " + tempPath)
+            }
+        }));
+        return imageList
     }
+
 
     const Home = async () => {
         const dataList = {imageList:await DownloadBanner(), dummy:"test"};

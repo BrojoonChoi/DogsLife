@@ -33,7 +33,7 @@ const Styles = StyleSheet.create
         alignItems:"center", 
         justifyContent:"center",
         flex: 1,
-        width: 384,
+        width: "auto",
         height: "auto",
         borderRadius: 16,
         borderColor: '#FFCFD5',

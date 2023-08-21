@@ -1,9 +1,7 @@
 import React, {useState, useContext, createContext, useEffect} from 'react';
-import {Alert, Modal, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
-import Styles from '../Styles/CommonStyle';
-import ModalNotification from './ModalNotification';
+import {Alert, Modal, StyleSheet, Text, TouchableOpacity, View, Dimensions, Platform } from 'react-native';
 import CryptoJS from 'rn-crypto-js'
-import storage from '@react-native-firebase/storage';
+import RNFS from 'react-native-fs';
 
   // 데이터와 솔트를 사용하여 암호화
 const encryptWithSalt = (data: string, salt: string) => {
@@ -18,6 +16,40 @@ const decryptWithSalt = (encryptedData: string, salt: string): string => {
 
 const GlobalWidth = Dimensions.get('window').width
 const GlobalHeight = Dimensions.get('window').height
+const LocalDataPath:string = `${RNFS.DocumentDirectoryPath}/local/`
+const GetCachePath = async (path:string) => {
+    const extension = Platform.OS === 'android' ? 'file://' : '';
+    try {
+        const dir = `${extension}${RNFS.CachesDirectoryPath}/${path.substring(0, path.lastIndexOf('/'))}/`;
+        const exists = await RNFS.exists(dir);
+
+        console.log(dir)
+    
+        if (!exists) {
+            await RNFS.mkdir(dir);
+        }
+        else {
+            console.log("있어유.")
+        }
+        
+        return (`${dir}${path.substring(path.lastIndexOf('/') + 1, path.length)}`)
+      } catch (error) {
+      }
+      return "";
+}
+
+const CheckCacheFile = async (path:string) => {
+    return await RNFS.exists(path);
+}
+
+const SaveCacheFile = async (uri:string, path:string) => {
+    const options = {
+        fromUrl: uri,
+        toFile: path,
+      };
+
+      const downloadResult = await RNFS.downloadFile(options).promise;
+}
 
 const generateSalt = () => {
     let result = Math.floor(Math.random() * 10).toString();
@@ -29,7 +61,6 @@ const generateSalt = () => {
 }
 
 const GlobalContext = createContext("lang");
-export default GlobalContext;
 
 export function GlobalContextProvider ({children}:any) {
     const [modalNotificationVisible, setModalNotificationVisible] = useState(false);
@@ -66,9 +97,11 @@ export function GlobalContextProvider ({children}:any) {
             modalTitle, modalText, onModalClose, 
             modalNotificationVisible, ShowNotification,
             modalOKCancelVisible, ShowOKCancel, onModalOK,
-            GlobalWidth, GlobalHeight,
+            GlobalWidth, GlobalHeight, GetCachePath, CheckCacheFile, SaveCacheFile
         }}>
             {children}
         </GlobalContext.Provider>
     );
 };
+
+export default GlobalContext;

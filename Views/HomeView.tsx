@@ -21,7 +21,6 @@ function HomeView({navigation, route}:any):JSX.Element
 
     useEffect (() =>
     {
-        console.log(dataList.imageList)
     }, [])
 
     const dummyData = {api:[{title:"2023.01.01 12:00", text:"잔다."}, {title:"2023.01.02 12:00", text:"잔다."}, {title:"2023.01.03 12:00", text:"잔다."}, {title:"2023.01.04 12:00", text:"잔다."}]}
@@ -75,7 +74,7 @@ function HomeView({navigation, route}:any):JSX.Element
                 </View>
 
                 {/*Banner zone*/}
-                <View style={{width:"100%", alignItems:"center", justifyContent:"center",}}>
+                <View style={{width:"100%", alignItems:"center", justifyContent:"center"}}>
                     <View style={Styles.bannerContainer}>
                         {
                             dataList.imageList == undefined ? <Image source={require("../Assets/Images/img_home_banner_loading.png")} style={Styles.banner}/> :
