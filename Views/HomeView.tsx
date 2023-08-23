@@ -1,16 +1,14 @@
 import React, { useEffect, useState, useContext, useMemo } from 'react';
 import type {PropsWithChildren} from 'react';
 import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View, Image, Alert, Button, Platform, TouchableOpacity } from 'react-native';
-import { GoogleSignin, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
 import Styles from '../Styles/CommonStyle';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Swiper from 'react-native-swiper';
-import firebase from '@react-native-firebase/app'
-import database from '@react-native-firebase/database';
 import Footer from '../Components/Footer'
 import CameraList from '../Components/CameraList';
 import GlobalContext from '../Components/GlobalContext';
+import Header from '../Components/Header';
 
 import ImgLogo from '../Assets/Images/img_home_logo_small.svg'
 import SettingIcon from '../Assets/Images/img_home_setting.svg'
@@ -49,29 +47,13 @@ function HomeView({navigation, route}:any):JSX.Element
     const LoadMore = () => {
         console.log()
     }
-
-    const onSettingClick = async () => {
-        await firebase.auth().signOut();
-        await GoogleSignin.revokeAccess();
-        await GoogleSignin.signOut();
-        console.log("sign out");
-        navigation.navigate("Loading");
-    }
     
     return (
         <SafeAreaView style={{backgroundColor:"#FFFFFF", justifyContent:'flex-start', ...Styles.mainBody}}>
             {/* margin is footer height + 21(padding) */}
             <ScrollView style={{marginBottom:79, width:"100%"}}>
                 {/*Header*/}
-                <View style={{justifyContent:"space-between", flexDirection:"row", width:"100%", paddingTop:20, paddingBottom:20, ...Styles.leftRightPadding}}>
-                    <View style={{flexDirection:"row", alignItems:"center", }}>
-                        <ImgLogo width={40} height={40}/>
-                        <Text style={{color:"#FF99A0", fontSize:20, fontFamily:"Cafe24Syongsyong"}}>강아지의 하루</Text>
-                    </View>
-                    <TouchableOpacity style={{flexDirection:"row", alignItems:"center", }} onPress={() => onSettingClick()}>
-                        <SettingIcon width={40} height={40}/>
-                    </TouchableOpacity>
-                </View>
+                <Header />
 
                 {/*Banner zone*/}
                 <View style={{width:"100%", alignItems:"center", justifyContent:"center"}}>

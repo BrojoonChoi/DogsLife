@@ -134,9 +134,35 @@ const Server = ({navigation}:any) => {
       pc.addIceCandidate(candidate)
     });
 
-    pc.addEventListener( 'connectionstatechange', event => {
-      console.log(event)
+    pc.addEventListener('connectionstatechange', async event => {
+      console.log("connection")
+      console.log(pc.connectionState)
       switch( pc.connectionState ) {
+        case 'closed':
+          pc.close();
+          setCaptureMode(true);
+          createOffer(salt);
+          console.log("disconnected");
+          return;
+        case 'disconnected':
+          pc.close();
+          setCaptureMode(true);
+          createOffer(salt);
+          console.log("disconnected");
+          return;
+        case 'failed':
+          pc.close();
+          setCaptureMode(true);
+          createOffer(salt);
+          console.log("disconnected");
+          return;
+      };
+    });
+
+    pc.addEventListener( 'signalingstatechange', async event => {
+      console.log("signal : ")
+      console.log(pc.signalingState)
+      switch( pc.signalingState ) {
         case 'closed':
           pc.close();
           setCaptureMode(true);

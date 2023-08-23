@@ -91,7 +91,8 @@ const Client = ({navigation}:any) => {
       });
       await pc.setRemoteDescription(offerDes);
     } catch {
-      setInputBoxVisible(true)
+      setInputBoxVisible(true);
+      pc.close();
       return;
     }
     
@@ -123,6 +124,25 @@ const Client = ({navigation}:any) => {
     });
 
     setAskAgain(false);
+
+    pc.addEventListener('connectionstatechange', event => {
+      console.log(event)
+      switch( pc.connectionState ) {
+        case 'closed':
+          pc.close();
+          console.log("disconnected");
+          return;
+      };
+    });
+
+    pc.addEventListener( 'signalingstatechange', event => {
+      switch( pc.signalingState ) {
+        case 'closed':
+          pc.close();
+          console.log("disconnected");
+          return;
+      };
+    } );
   };
 
   return (
