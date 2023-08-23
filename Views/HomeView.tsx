@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import type {PropsWithChildren} from 'react';
 import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View, Image, Alert, Button, Platform, TouchableOpacity } from 'react-native';
 import { GoogleSignin, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
@@ -28,11 +28,11 @@ function HomeView({navigation, route}:any):JSX.Element
         return (
             <View key={`camkey${key}`} style={{justifyContent:"flex-start", flexDirection:"row", width:"100%", marginBottom:8}}>
                 {/*left image zone*/}
-                <View style={{justifyContent:"center", alignItems:"flex-start", width:"50%"}}>
+                <View style={{justifyContent:"center", alignItems:"flex-start", marginRight:16}}>
                     <Image style={Styles.camImage} source={require("../Assets/Images/temp_img.png")}/>
                 </View>
                 {/*right text zone*/}
-                <View style={{justifyContent:"center", alignItems:"flex-start", width:"50%", left:-16}}>
+                <View style={{justifyContent:"center", alignItems:"flex-start", }}>
                     <View>
                         <Text style={{color:"#FF99A0", fontSize:13, fontFamily:"BMJUA_ttf", letterSpacing:0.06, marginBottom:6}}>TIME</Text>
                         <Text style={{color:"#616161", fontSize:13, fontFamily:"AppleSDGothicNeoM", letterSpacing:0.1, marginBottom:18}}>{title}</Text>

@@ -3,6 +3,7 @@ import {Alert, Modal, StyleSheet, Text, TouchableOpacity, View, Dimensions, Plat
 import CryptoJS from 'rn-crypto-js'
 import RNFS from 'react-native-fs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import storage from '@react-native-firebase/storage'
 
   // 데이터와 솔트를 사용하여 암호화
 const encryptWithSalt = (data: string, salt: string) => {
@@ -23,8 +24,6 @@ const GetCachePath = async (path:string) => {
     try {
         const dir = `${extension}${RNFS.CachesDirectoryPath}/${path.substring(0, path.lastIndexOf('/'))}/`;
         const exists = await RNFS.exists(dir);
-
-        console.log(dir)
     
         if (!exists) {
             await RNFS.mkdir(dir);
@@ -87,6 +86,24 @@ export function GlobalContextProvider ({children}:any) {
     const [modalText, setModalText] = useState("");
     const [userToken, setUserToken] = useState(null)
     const [onModalOK, setOnModalOK] = useState();
+    
+    const UploadFile = async (path:string, uri:string) => {
+      const reference = storage().ref(`/${userToken}/${path}`);
+      if (Platform.OS === "android") { // 안드로이드
+        await reference.putFile(uri);
+        // 파일 업로드
+        /*
+        await reference.putString(uri, "base64", {
+            contentType: "image"
+        });
+        */
+      } else { // iOS
+          // 파일 업로드
+          await reference.putFile(uri);
+      }
+      const imageUrl = await reference.getDownloadURL();
+      await reference.putFile(uri);
+    }
 
     const ShowNotification = (title:string, text:string) => {
         setmodalOKCancelVisible(false)
@@ -116,7 +133,7 @@ export function GlobalContextProvider ({children}:any) {
             modalNotificationVisible, ShowNotification,
             modalOKCancelVisible, ShowOKCancel, onModalOK,
             GlobalWidth, GlobalHeight, GetCachePath, CheckCacheFile, SaveCacheFile,
-            storeData, getData
+            storeData, getData, UploadFile
         }}>
             {children}
         </GlobalContext.Provider>

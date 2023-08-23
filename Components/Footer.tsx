@@ -14,10 +14,10 @@ function Footer({navigation}:any):JSX.Element
         <View style={Styles.footer}>
             <Shadow startColor='#0000000A' distance={13} offset={[0, -13]} style={{width:"100%"}}/>
             <TouchableOpacity>
-                <ImgNavHome onPress={() => navigation.navigate("Home")}/>
+                <ImgNavHome onPress={() => navigation.popToTop()}/>
             </TouchableOpacity>
             <TouchableOpacity>
-                <ImgNavDiary onPress={() => navigation.navigate("Home")}/>
+                <ImgNavDiary onPress={() => navigation.navigate("Server")}/>
             </TouchableOpacity>
             <TouchableOpacity>
                 <ImgNavCamera onPress={() => navigation.navigate("Server")}/>

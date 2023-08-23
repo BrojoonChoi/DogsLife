@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Button, SafeAreaView, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native';
 //import firebase from '@react-native-firebase/app'
 import database from '@react-native-firebase/database';
 import { RTCSessionDescription, RTCPeerConnection, mediaDevices, RTCIceCandidate, RTCView, MediaStream, } from 'react-native-webrtc';
@@ -22,13 +22,47 @@ let sessionConstraints = {
 };
 let mediaConstraints = {
 	audio: true,
-	video: true,
+	video: {
+		frameRate: 30,
+		facingMode: 'environment'
+	}
 };
 
 const Server = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState(new MediaStream());
   const [localStream, setLocalStream] = useState(null);
-  const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt, userToken} = useContext(GlobalContext)
+  const [captureMode, setCaptureMode] = useState(true);
+
+  const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt, userToken, UploadFile} = useContext(GlobalContext)
+
+  const scheduledFunction = async () => {
+    /*
+    captureScreen({
+      format: "png",
+      quality: 0.8,
+      fileName:"temp"
+    }).then(
+      (uri) => UploadFile("temp", uri),
+      (error) => console.error("Oops, snapshot failed", error)
+    );
+    */
+    console.log("Scheduled function called at:", new Date());
+  }
+  
+  function scheduleIntervalFunction() {
+    const minutes = new Date().getMinutes();
+    const minutesRemainder = minutes % 15; // 15분 간격으로 호출
+  
+    // 다음 호출까지 남은 시간 계산
+    //const millisecondsUntilNextCall = (15 - minutesRemainder) * 60 * 1000;
+    const millisecondsUntilNextCall = 3000 * 60;
+  
+    //scheduledFunction(); // 처음에 함수를 바로 호출
+  
+    setInterval(() => {
+      scheduledFunction(); // 함수 호출
+    }, millisecondsUntilNextCall);
+  }
 
   useEffect (() => {
     ShowOKCancel("알림", "카메라 설정을 시작합니다.", () => (StartProcess()) )
@@ -38,15 +72,18 @@ const Server = ({navigation}:any) => {
     const salt = generateSalt();
     ShowNotification(salt, "일상용 핸드폰에 이 번호를 입력하세요.")
     createOffer(salt);
+    scheduleIntervalFunction();
   }
 
   const createOffer = async (salt:string) => {
     const pc = new RTCPeerConnection(peerConstraints);
     
     pc.ontrack = (event) => {
+      /*
       event.streams[0].getTracks().forEach(track => {
         remoteStream.addTrack(track);
       });
+      */
     };
     
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
@@ -98,9 +135,14 @@ const Server = ({navigation}:any) => {
     });
 
     pc.addEventListener( 'connectionstatechange', event => {
+      console.log(event)
       switch( pc.connectionState ) {
-        case 'closed':    
-          break;
+        case 'closed':
+          pc.close();
+          setCaptureMode(true);
+          createOffer(salt);
+          console.log("disconnected");
+          return;
       };
     } );
   };

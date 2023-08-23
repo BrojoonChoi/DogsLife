@@ -65,7 +65,6 @@ function LoadingView({navigation, dataList}: any):JSX.Element
 
     useEffect (() => {
         requestMediaPermissions();
-        sleep(500); 
         
         const checkAutoLogin = async () => {
             try 
