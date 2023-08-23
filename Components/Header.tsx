@@ -8,10 +8,9 @@ import { GoogleSignin, GoogleSigninButton, GoogleSigninButtonProps } from '@reac
 import firebase from '@react-native-firebase/app'
 import database from '@react-native-firebase/database';
 
-function Header({navigation}:any):JSX.Element
+function Header({navigation, title}:any):JSX.Element
 {
-
-    const onSettingClick = async () => {
+    const onLogout = async () => {
         await firebase.auth().signOut();
         await GoogleSignin.revokeAccess();
         await GoogleSignin.signOut();
@@ -19,11 +18,15 @@ function Header({navigation}:any):JSX.Element
         navigation.navigate("Loading");
     }
 
+    const onSettingClick = async () => {
+        navigation.navigate("Setting");
+    }
+
     return (
         <View style={{justifyContent:"space-between", flexDirection:"row", width:"100%", paddingTop:20, paddingBottom:20, ...Styles.leftRightPadding}}>
                     <View style={{flexDirection:"row", alignItems:"center", }}>
                         <ImgLogo width={40} height={40}/>
-                        <Text style={{color:"#FF99A0", fontSize:20, fontFamily:"Cafe24Syongsyong"}}>강아지의 하루</Text>
+                        <Text style={{color:"#FF99A0", fontSize:20, fontFamily:"Cafe24Syongsyong"}}>{title}</Text>
                     </View>
                     <TouchableOpacity style={{flexDirection:"row", alignItems:"center", }} onPress={() => onSettingClick()}>
                         <SettingIcon width={40} height={40}/>

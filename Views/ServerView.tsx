@@ -32,8 +32,11 @@ const Server = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState(new MediaStream());
   const [localStream, setLocalStream] = useState(null);
   const [captureMode, setCaptureMode] = useState(true);
+  const [pc, setPc] = useState();
 
   const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt, userToken, UploadFile} = useContext(GlobalContext)
+
+  const salt = generateSalt();
 
   const scheduledFunction = async () => {
     /*
@@ -64,19 +67,32 @@ const Server = ({navigation}:any) => {
     }, millisecondsUntilNextCall);
   }
 
+  const Escaped = () => {
+    SessionDestroy();
+  };
+
+  const SessionDestroy = async () => {
+    pc.close();
+    setPc(null);
+    setCaptureMode(true);
+    createOffer(salt);
+    console.log("disconnected");
+  }
+
   useEffect (() => {
     ShowOKCancel("알림", "카메라 설정을 시작합니다.", () => (StartProcess()) )
+    return () => Escaped();
   },[])
 
   const StartProcess = () => {
-    const salt = generateSalt();
     ShowNotification(salt, "일상용 핸드폰에 이 번호를 입력하세요.")
     createOffer(salt);
     scheduleIntervalFunction();
   }
 
   const createOffer = async (salt:string) => {
-    const pc = new RTCPeerConnection(peerConstraints);
+    const TempPC = new RTCPeerConnection(peerConstraints);
+    setPc(TempPC);
     
     pc.ontrack = (event) => {
       /*
@@ -135,42 +151,26 @@ const Server = ({navigation}:any) => {
     });
 
     pc.addEventListener('connectionstatechange', async event => {
-      console.log("connection")
-      console.log(pc.connectionState)
       switch( pc.connectionState ) {
         case 'closed':
-          pc.close();
-          setCaptureMode(true);
-          createOffer(salt);
-          console.log("disconnected");
+          SessionDestroy();
           return;
         case 'disconnected':
-          pc.close();
-          setCaptureMode(true);
-          createOffer(salt);
-          console.log("disconnected");
+          SessionDestroy();
           return;
         case 'failed':
-          pc.close();
-          setCaptureMode(true);
-          createOffer(salt);
-          console.log("disconnected");
+          SessionDestroy();
           return;
       };
     });
 
     pc.addEventListener( 'signalingstatechange', async event => {
-      console.log("signal : ")
-      console.log(pc.signalingState)
       switch( pc.signalingState ) {
         case 'closed':
-          pc.close();
-          setCaptureMode(true);
-          createOffer(salt);
-          console.log("disconnected");
+          SessionDestroy();
           return;
       };
-    } );
+    });
   };
 
   return (

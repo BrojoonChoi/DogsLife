@@ -53,7 +53,7 @@ function HomeView({navigation, route}:any):JSX.Element
             {/* margin is footer height + 21(padding) */}
             <ScrollView style={{marginBottom:79, width:"100%"}}>
                 {/*Header*/}
-                <Header />
+                <Header navigation={navigation} title="강아지의 하루"/>
 
                 {/*Banner zone*/}
                 <View style={{width:"100%", alignItems:"center", justifyContent:"center"}}>

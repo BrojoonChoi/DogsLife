@@ -29,13 +29,21 @@ const Client = ({navigation}:any) => {
   const [askAgain, setAskAgain] = useState(true);
   const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext(GlobalContext)
   const [inputBoxVisible, setInputBoxVisible] = useState(false);
+  const [pc, setPc] = useState();
+
+  const SessionDestroy = async () => {
+    pc.close();
+    setPc(null);
+    console.log("disconnected");
+  }
   
-  const handleModal = () => {
+  const Escaped = () => {
+    SessionDestroy();
   };
 
   useEffect(() => {
     StartProcess();
-    return () => handleModal();
+    return () => Escaped();
   }, [])
 
   const AskCameraSetting = () => {
@@ -58,7 +66,8 @@ const Client = ({navigation}:any) => {
   }
 
   const readOffer = async (salt:string) => {
-    const pc = new RTCPeerConnection(peerConstraints);
+    const TempPC = new RTCPeerConnection(peerConstraints);
+    setPc(TempPC);
 
     pc.ontrack = (event) => {
       event.streams[0].getTracks().forEach(track => {
@@ -125,25 +134,28 @@ const Client = ({navigation}:any) => {
 
     setAskAgain(false);
 
-    pc.addEventListener('connectionstatechange', event => {
-      console.log(event)
+    pc.addEventListener('connectionstatechange', async event => {
       switch( pc.connectionState ) {
         case 'closed':
-          pc.close();
-          console.log("disconnected");
+          SessionDestroy();
+          return;
+        case 'disconnected':
+          SessionDestroy();
+          return;
+        case 'failed':
+          SessionDestroy();
           return;
       };
     });
 
-    pc.addEventListener( 'signalingstatechange', event => {
+    pc.addEventListener( 'signalingstatechange', async event => {
       switch( pc.signalingState ) {
         case 'closed':
-          pc.close();
-          console.log("disconnected");
+          SessionDestroy();
           return;
       };
-    } );
-  };
+    });
+  }
 
   return (
     <SafeAreaView style={{backgroundColor:"#FFFFFF", flex:1}}>

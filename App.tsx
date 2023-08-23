@@ -6,13 +6,14 @@ import ModalNotification from './Components/ModalNotification';
 import ModalOKCancel from './Components/ModalOKCancel';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth'
-import firebase from '@react-native-firebase/app'
+import firebase from '@react-native-firebase/app';
 
-import HomeView from './Views/HomeView'
-import LoadingView from './Views/LoadingView'
-import LoginView from './Views/LoginView'
-import ClientView from './Views/ClientView'
-import ServerView from './Views/ServerView'
+import HomeView from './Views/HomeView';
+import LoadingView from './Views/LoadingView';
+import LoginView from './Views/LoginView';
+import ClientView from './Views/ClientView';
+import ServerView from './Views/ServerView';
+import SettingView from './Views/SettingView';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBny7zuFlGUdjVokhr0SVDBjCIE6RJ76Rk",
@@ -42,6 +43,7 @@ function App(): JSX.Element {
           <Stack.Screen name='Home' component={HomeView}/>
           <Stack.Screen name='Client' component={ClientView}/>
           <Stack.Screen name='Server' component={ServerView}/>
+          <Stack.Screen name='Setting' component={SettingView}/>
         </Stack.Navigator>
         <ModalNotification />
         <ModalOKCancel />
