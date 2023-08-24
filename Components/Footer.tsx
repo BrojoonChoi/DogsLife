@@ -12,19 +12,21 @@ function Footer({navigation}:any):JSX.Element
 {
     return (
         <View style={Styles.footer}>
-            <Shadow startColor='#0000000A' distance={13} offset={[0, -13]} style={{width:"100%"}}/>
-            <TouchableOpacity>
-                <ImgNavHome onPress={() => navigation.popToTop()}/>
-            </TouchableOpacity>
-            <TouchableOpacity>
-                <ImgNavDiary onPress={() => navigation.navigate("Server")}/>
-            </TouchableOpacity>
-            <TouchableOpacity>
-                <ImgNavCamera onPress={() => navigation.navigate("Server")}/>
-            </TouchableOpacity>
-            <TouchableOpacity>
-                <ImgNavCCTV onPress={() => navigation.navigate("Client")}/>
-            </TouchableOpacity>
+            <Shadow distance={14} startColor={'#0000001A'} offset={[0, 0]} style={{width:"100%",}}/>
+            <View style={{backgroundColor: '#FFF2F4', flexDirection:"row"}}>
+                <TouchableOpacity >
+                    <ImgNavHome onPress={() => navigation.popToTop()}/>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                    <ImgNavDiary onPress={() => navigation.navigate("Home")}/>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                    <ImgNavCamera onPress={() => navigation.navigate("Server")}/>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                    <ImgNavCCTV onPress={() => navigation.navigate("Client")}/>
+                </TouchableOpacity>
+            </View> 
         </View>
     );
 }

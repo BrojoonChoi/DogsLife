@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+  <g id="icon_로그아웃" transform="translate(14754 10520)">
+    <rect id="사각형_4214" data-name="사각형 4214" width="20" height="20" transform="translate(-14754 -10520)" fill="none" opacity="0.2"/>
+    <g id="그룹_19326" data-name="그룹 19326" transform="translate(1 -17)">
+      <rect id="사각형_4239" data-name="사각형 4239" width="14" height="14" transform="translate(-14751 -10500)" fill="none"/>
+      <g id="그룹_19325" data-name="그룹 19325" transform="translate(1.301 34)">
+        <path id="Stroke_1" data-name="Stroke 1" d="M9.368,3.533V2.82A2.82,2.82,0,0,0,6.549,0H2.819A2.82,2.82,0,0,0,0,2.82v8.516a2.82,2.82,0,0,0,2.819,2.82H6.556a2.812,2.812,0,0,0,2.812-2.811v-.722" transform="translate(-14752.301 -10534)" fill="none" stroke="#ff99a0" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <path id="Stroke_3" data-name="Stroke 3" d="M9.213.5H0" transform="translate(-14747.514 -10527.423)" fill="none" stroke="#ff99a0" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <path id="Stroke_5" data-name="Stroke 5" d="M0,0,2.24,2.23,0,4.461" transform="translate(-14740.541 -10529.153)" fill="none" stroke="#ff99a0" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </g>
+    </g>
+  </g>
+</svg>

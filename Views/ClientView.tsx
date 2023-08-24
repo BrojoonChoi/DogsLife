@@ -29,7 +29,7 @@ const Client = ({navigation}:any) => {
   const [askAgain, setAskAgain] = useState(true);
   const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext(GlobalContext)
   const [inputBoxVisible, setInputBoxVisible] = useState(false);
-  const [pc, setPc] = useState();
+  const [pc, setPc] = useState(new RTCPeerConnection(peerConstraints));
 
   const SessionDestroy = async () => {
     pc.close();
@@ -66,8 +66,7 @@ const Client = ({navigation}:any) => {
   }
 
   const readOffer = async (salt:string) => {
-    const TempPC = new RTCPeerConnection(peerConstraints);
-    setPc(TempPC);
+    
 
     pc.ontrack = (event) => {
       event.streams[0].getTracks().forEach(track => {

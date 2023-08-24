@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+  <g id="icon_튜토리얼" transform="translate(14755 10692)">
+    <rect id="사각형_4208" data-name="사각형 4208" width="20" height="20" transform="translate(-14755 -10692)" fill="none" opacity="0.2"/>
+    <g id="그룹_19317" data-name="그룹 19317" transform="translate(-9 5)">
+      <g id="그룹_19316" data-name="그룹 19316" transform="translate(-7 -11)">
+        <path id="Stroke_1" data-name="Stroke 1" d="M7,0A7,7,0,1,1,0,7,7,7,0,0,1,7,0Z" transform="translate(-14736 -10683)" fill="none" stroke="#ff99a0" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <path id="Stroke_3" data-name="Stroke 3" d="M.5,0V3.344" transform="translate(-14729.504 -10678.873)" fill="none" stroke="#ff99a0" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+        <path id="Stroke_5" data-name="Stroke 5" d="M.5.5H.5" transform="translate(-14729.499 -10673.628)" fill="none" stroke="#ff99a0" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+      </g>
+      <rect id="사각형_4236" data-name="사각형 4236" width="14" height="14" transform="translate(-14743 -10694)" fill="none"/>
+    </g>
+  </g>
+</svg>

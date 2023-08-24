@@ -51,7 +51,7 @@ function HomeView({navigation, route}:any):JSX.Element
     return (
         <SafeAreaView style={{backgroundColor:"#FFFFFF", justifyContent:'flex-start', ...Styles.mainBody}}>
             {/* margin is footer height + 21(padding) */}
-            <ScrollView style={{marginBottom:79, width:"100%"}}>
+            <ScrollView style={{marginBottom:58, width:"100%"}}>
                 {/*Header*/}
                 <Header navigation={navigation} title="강아지의 하루"/>
 

@@ -86,14 +86,13 @@ const Server = ({navigation}:any) => {
 
   const StartProcess = () => {
     ShowNotification(salt, "일상용 핸드폰에 이 번호를 입력하세요.")
+    
+    setPc(new RTCPeerConnection(peerConstraints));
     createOffer(salt);
     scheduleIntervalFunction();
   }
 
   const createOffer = async (salt:string) => {
-    const TempPC = new RTCPeerConnection(peerConstraints);
-    setPc(TempPC);
-    
     pc.ontrack = (event) => {
       /*
       event.streams[0].getTracks().forEach(track => {

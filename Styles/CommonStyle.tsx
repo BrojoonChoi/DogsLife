@@ -17,8 +17,9 @@ const Styles = StyleSheet.create
         backgroundColor: '#FFF2F4',
         width:"100%",
         height:58,
-        flexDirection:"row",
-        justifyContent:"space-between"
+        flexDirection:"column",
+        justifyContent:"space-between",
+        
     },
     bannerContainer :
     {
@@ -228,6 +229,34 @@ const Styles = StyleSheet.create
         fontFamily:"AppleSDGothicNeoM",
         fontSize:17,
         letterSpacing:0.31,
+    },
+    settingOption :
+    {
+        width:"100%",
+        flexDirection:"row",
+        alignItems:"center"
+    },
+    settingBorder :
+    {
+        height:63,
+        width:"100%",
+        flexDirection:"row",
+        justifyContent:'space-between',
+        alignItems:"center",
+        borderBottomColor:"#FFC9CA", 
+        borderBottomWidth:1
+    },
+    
+    settingOptionText :
+    {
+        paddingLeft:8,
+        paddingRight:8,
+        textAlign:'left',
+        textAlignVertical:'center',
+        color : "#616161",
+        fontFamily:"Cafe24Syongsyong",
+        fontSize:17,
+        letterSpacing:0.13,
     }
 })
 
