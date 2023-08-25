@@ -257,6 +257,17 @@ const Styles = StyleSheet.create
         fontFamily:"Cafe24Syongsyong",
         fontSize:17,
         letterSpacing:0.13,
+    },
+    tutorialBox :
+    {
+        height:473,
+        borderWidth:1,
+        borderColor: "#FFCFD5",
+        borderRadius: 16,
+        backgroundColor : "#FFF7F9",
+        marginLeft:21,
+        marginRight:21,
+        padding:10,
     }
 })
 

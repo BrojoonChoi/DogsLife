@@ -32,7 +32,7 @@ const Server = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState(new MediaStream());
   const [localStream, setLocalStream] = useState(null);
   const [captureMode, setCaptureMode] = useState(true);
-  const [pc, setPc] = useState();
+  const [pc, setPc] = useState(new RTCPeerConnection(peerConstraints));
 
   const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt, userToken, UploadFile} = useContext(GlobalContext)
 
@@ -73,9 +73,9 @@ const Server = ({navigation}:any) => {
 
   const SessionDestroy = async () => {
     pc.close();
-    setPc(null);
-    setCaptureMode(true);
+    setPc(new RTCPeerConnection(peerConstraints));
     createOffer(salt);
+    setCaptureMode(true);
     console.log("disconnected");
   }
 

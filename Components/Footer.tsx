@@ -12,7 +12,7 @@ function Footer({navigation}:any):JSX.Element
 {
     return (
         <View style={Styles.footer}>
-            <Shadow distance={14} startColor={'#0000001A'} offset={[0, 0]} style={{width:"100%",}}/>
+            <Shadow distance={15} startColor={'#0000000F'} endColor={'#FFFFFFFF'} offset={[0, 0]} style={{width:"100%",}}/>
             <View style={{backgroundColor: '#FFF2F4', flexDirection:"row"}}>
                 <TouchableOpacity >
                     <ImgNavHome onPress={() => navigation.popToTop()}/>
