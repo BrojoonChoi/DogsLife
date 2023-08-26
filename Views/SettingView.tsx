@@ -67,7 +67,7 @@ function SettingView({navigation}:any):JSX.Element
             {/* margin is footer height + 21(padding) */}
             <ScrollView style={{marginBottom:79, width:"100%"}}>
                 {/*Header*/}
-                <Header navigation={navigation} title="설정"/>
+                <Header navigation={navigation} title="설정" setting={false}/>
 
                 {/* main body */}
                 {MakeOption({title:"튜토리얼", logo:"tutorial", onClick:() => navigation.navigate("Tutorial")})}

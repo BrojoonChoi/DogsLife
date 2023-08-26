@@ -268,7 +268,20 @@ const Styles = StyleSheet.create
         marginLeft:21,
         marginRight:21,
         padding:10,
-    }
+        marginBottom:10,
+    },
+    bigButton :
+    {
+        width:"100%",
+        height:46,
+        backgroundColor:"#FE8291",
+        borderRadius:16,
+        color : "#FE8291",
+        alignItems:"center",
+        justifyContent:"center",
+        paddingLeft:21,
+        paddingRight:21,
+    },
 })
 
 export default Styles

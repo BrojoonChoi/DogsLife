@@ -13,26 +13,38 @@ function TutorialView({navigation}:any):JSX.Element
     {
     }, [])
 
-    const renderPagination = (index:any, total:any, context:any) => {
+    const CustomPagination = () => {
         return (
-          <View style={{position:"absolute", bottom:10,}}>
-            <Text style={{ color: 'grey' }}>
-                text
-            </Text>
+          <View style={{ backgroundColor:"#FFF2F4", borderRadius:4, width:"80%", height:8, marginLeft:21, marginRight:21}}>
+            <View style={{ backgroundColor:"#FFB0B3", borderRadius:4, width:"40%", height:8,}} />
           </View>
         )
-      }
-    
+    }
+
+    const CustumButton = () => {
+        return (
+            <TouchableOpacity style={Styles.bigButton} onPress={() => Previous()}>
+                <Text style={{...Styles.btnText, color:"#FFFFFF"}} >확인</Text>
+            </TouchableOpacity>
+        )
+    }
+
+    const Previous = () => {
+
+    }
+
+    const Next = () => {
+
+    }    
 
     return (
         <SafeAreaView style={{backgroundColor:"#FFFFFF", justifyContent:'flex-start', ...Styles.mainBody}}>
             {/* margin is footer height + 21(padding) */}
-            <ScrollView style={{marginBottom:79, width:"100%"}}>
                 {/*Header*/}
                 <Header navigation={navigation} title="튜토리얼" setting={false}/>
 
                 {/* main body */}
-                <Swiper loop={false} renderPagination={renderPagination} >
+                <Swiper loop={false} showsPagination={false} style={{height:473,}}>
                     <View style={Styles.tutorialBox}>
                         <Text style={{fontFamily:"AppleSDGothicNeoM", fontSize:13,}}>
                             김튜토리얼
@@ -44,9 +56,8 @@ function TutorialView({navigation}:any):JSX.Element
                         </Text>
                     </View>
                 </Swiper>
-
-            </ScrollView>
-
+                {CustomPagination()}
+                {CustumButton()}
             {/*Footer*/}
         </SafeAreaView>
     );
