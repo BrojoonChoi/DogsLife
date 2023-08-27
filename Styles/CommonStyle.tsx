@@ -70,6 +70,8 @@ const Styles = StyleSheet.create
         backgroundColor: "#FFFFFF",
         marginVertical:5,
         justifyContent:"center",
+        flexDirection:"row",
+        alignItems:'center'
     },
     loginButtonKakao:
     {
@@ -80,6 +82,8 @@ const Styles = StyleSheet.create
         backgroundColor: "#FFE600",
         marginVertical:5,
         justifyContent:"center",
+        flexDirection:"row",
+        alignItems:'center'
     },
     loginButtonText:
     {
@@ -88,7 +92,7 @@ const Styles = StyleSheet.create
         fontSize:19,
         textAlign:'center',
         color:"#000000",
-        fontWeight:"600",
+        fontWeight:"500",
     },
     leftRightPadding :
     {
@@ -272,15 +276,11 @@ const Styles = StyleSheet.create
     },
     bigButton :
     {
-        width:"100%",
         height:46,
-        backgroundColor:"#FE8291",
         borderRadius:16,
         color : "#FE8291",
         alignItems:"center",
         justifyContent:"center",
-        paddingLeft:21,
-        paddingRight:21,
     },
 })
 

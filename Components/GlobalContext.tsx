@@ -4,6 +4,9 @@ import CryptoJS from 'rn-crypto-js'
 import RNFS from 'react-native-fs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import storage from '@react-native-firebase/storage'
+import Scripts from '../Language/kor';
+import { getLocales } from "react-native-localize";
+import ScriptsKOR from '../Language/kor';
 
   // 데이터와 솔트를 사용하여 암호화
 const encryptWithSalt = (data: string, salt: string) => {
@@ -78,7 +81,13 @@ const generateSalt = () => {
     return result;
 }
 
-const GlobalContext = createContext("lang");
+const ReadLangauge = () => {
+  const localConfig = getLocales();
+  return (localConfig[0].languageCode);
+}
+
+const currentLanguage = ReadLangauge();
+const GlobalContext = createContext("");
 export function GlobalContextProvider ({children}:any) {
     const [modalNotificationVisible, setModalNotificationVisible] = useState(false);
     const [modalOKCancelVisible, setmodalOKCancelVisible] = useState(false);
@@ -125,6 +134,18 @@ export function GlobalContextProvider ({children}:any) {
         setmodalOKCancelVisible(false)
     }
 
+    const script = (value:string) => {
+      switch (currentLanguage) {
+        case "ko" : {
+          return ScriptsKOR[value];
+        }
+        default : {
+          return ScriptsKOR[value];
+        }
+      }
+      return (value)
+    }
+
     return (
         <GlobalContext.Provider value={{
             userToken, setUserToken,
@@ -133,7 +154,7 @@ export function GlobalContextProvider ({children}:any) {
             modalNotificationVisible, ShowNotification,
             modalOKCancelVisible, ShowOKCancel, onModalOK,
             GlobalWidth, GlobalHeight, GetCachePath, CheckCacheFile, SaveCacheFile,
-            storeData, getData, UploadFile
+            storeData, getData, UploadFile, script
         }}>
             {children}
         </GlobalContext.Provider>

@@ -1,4 +1,4 @@
-import React, { useEffect, } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import type {PropsWithChildren} from 'react';
 import { SafeAreaView, ScrollView, Text, View, TouchableOpacity } from 'react-native';
 import Styles from '../Styles/CommonStyle';
@@ -9,33 +9,61 @@ import Swiper from 'react-native-swiper';
 
 function TutorialView({navigation}:any):JSX.Element
 {
+    const {script} = useContext(GlobalContext)
     useEffect (() =>
     {
     }, [])
 
+    const [page, setPage] = useState(1)
+
     const CustomPagination = () => {
         return (
-          <View style={{ backgroundColor:"#FFF2F4", borderRadius:4, width:"80%", height:8, marginLeft:21, marginRight:21}}>
-            <View style={{ backgroundColor:"#FFB0B3", borderRadius:4, width:"40%", height:8,}} />
-          </View>
+            <View style={{ width:"100%", paddingLeft:60, paddingRight:60, marginBottom:32}}>
+                <View style={{ backgroundColor:"#FFF2F4", borderRadius:4, width:"100%", height:8}}>
+                    <View style={{ backgroundColor:"#FFB0B3", borderRadius:4, width:"40%", height:8,}} />
+                </View>
+            </View>
         )
     }
 
     const CustumButton = () => {
-        return (
-            <TouchableOpacity style={Styles.bigButton} onPress={() => Previous()}>
-                <Text style={{...Styles.btnText, color:"#FFFFFF"}} >확인</Text>
-            </TouchableOpacity>
-        )
+        if (page==1) {
+            return (
+                <View style={{width:"100%", flexDirection:"row", justifyContent:"center", ...Styles.leftRightPadding}}>
+                    <TouchableOpacity style={{width:"100%", backgroundColor:"#FE8291", ...Styles.bigButton}} onPress={() => Next()}>
+                        <Text style={{...Styles.loginButtonText, color:"#FFFFFF", fontFamily:"Cafe24Syongsyong",}} >다음</Text>
+                    </TouchableOpacity>
+                </View>
+            )
+        } else if (page==3) {
+            return (
+                <View style={{width:"100%", flexDirection:"row", justifyContent:"center", ...Styles.leftRightPadding}}>
+                <TouchableOpacity style={{width:"100%", backgroundColor:"#EEEEEE", ...Styles.bigButton}} onPress={() => Prev()}>
+                    <Text style={{...Styles.loginButtonText, color:"#616161", fontFamily:"Cafe24Syongsyong",}} >이전</Text>
+                </TouchableOpacity>
+                </View>
+            )
+        } else {
+            return (
+                <View style={{width:"100%", flexDirection:"row", justifyContent:"center", ...Styles.leftRightPadding}}>
+                    <TouchableOpacity style={{width:"50%", backgroundColor:"#EEEEEE", ...Styles.bigButton}} onPress={() => Prev()}>
+                        <Text style={{...Styles.loginButtonText, color:"#616161", fontFamily:"Cafe24Syongsyong",}} >이전</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{width:"50%", backgroundColor:"#FE8291", ...Styles.bigButton}} onPress={() => Next()}>
+                        <Text style={{...Styles.loginButtonText, color:"#FFFFFF", fontFamily:"Cafe24Syongsyong",}} >다음</Text>
+                    </TouchableOpacity>
+                </View>
+            )
+        }
     }
 
-    const Previous = () => {
-
+    const Prev = () => {
+        setPage(page-1);
     }
-
+    
     const Next = () => {
-
-    }    
+        setPage(page+1);
+    }
 
     return (
         <SafeAreaView style={{backgroundColor:"#FFFFFF", justifyContent:'flex-start', ...Styles.mainBody}}>
@@ -44,18 +72,13 @@ function TutorialView({navigation}:any):JSX.Element
                 <Header navigation={navigation} title="튜토리얼" setting={false}/>
 
                 {/* main body */}
-                <Swiper loop={false} showsPagination={false} style={{height:473,}}>
+                <View style={{width:"100%"}}>
                     <View style={Styles.tutorialBox}>
                         <Text style={{fontFamily:"AppleSDGothicNeoM", fontSize:13,}}>
-                            김튜토리얼
+                            {script("Tutorial")}
                         </Text>
                     </View>
-                    <View style={Styles.tutorialBox}>
-                        <Text style={{fontFamily:"AppleSDGothicNeoM", fontSize:13,}}>
-                            김튜토리얼
-                        </Text>
-                    </View>
-                </Swiper>
+                </View>
                 {CustomPagination()}
                 {CustumButton()}
             {/*Footer*/}

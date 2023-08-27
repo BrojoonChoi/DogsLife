@@ -14,7 +14,7 @@ import ImgLogo from '../Assets/Images/img_loading_logo.svg'
 
 function LoadingView({navigation, dataList}: any):JSX.Element
 {
-    const {userToken, setUserToken, GlobalWidth, GlobalHeight, GetCachePath, CheckCacheFile, SaveCacheFile} = useContext(GlobalContext);
+    const {userToken, setUserToken, GlobalWidth, GlobalHeight, GetCachePath, CheckCacheFile, SaveCacheFile, getData} = useContext(GlobalContext);
 
     const DownloadBanner = async() => {
         const firebasePath:any = [];
@@ -63,10 +63,9 @@ function LoadingView({navigation, dataList}: any):JSX.Element
         setUserToken(user?.uid)
     })
 
-    useEffect (() => {
-        requestMediaPermissions();
-        
-        const checkAutoLogin = async () => {
+    const checkAutoLogin = async () => {
+        const loginWay = await getData("login");
+        if (loginWay == "google") {
             try 
             {
                 await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
@@ -80,9 +79,15 @@ function LoadingView({navigation, dataList}: any):JSX.Element
                 Alert.alert(e + "\n에러가 발생했습니다.")
                 navigation.reset({routes: [{name: 'Login'}]})
             }
-          };
-      
-          checkAutoLogin();
+        }
+        else {
+            navigation.reset({routes: [{name: 'Login'}]})
+        }
+    };
+
+    useEffect (() => {
+        requestMediaPermissions();
+        checkAutoLogin();
     },[])
 
     return (

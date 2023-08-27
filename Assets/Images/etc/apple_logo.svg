@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="26" height="26" viewBox="0 0 26 26">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="사각형_3965" data-name="사각형 3965" width="26" height="26" transform="translate(-21560 -19030)" fill="#fff" stroke="#707070" stroke-width="1"/>
+    </clipPath>
+    <clipPath id="clip-path-2">
+      <rect id="사각형_3964" data-name="사각형 3964" width="22.084" height="22.084" transform="translate(-21634 -15466)" stroke="#707070" stroke-width="1"/>
+    </clipPath>
+  </defs>
+  <g id="apple_logo" transform="translate(21560 19030)" clip-path="url(#clip-path)">
+    <g id="마스크_그룹_4" data-name="마스크 그룹 4" transform="translate(76.001 -3561.999)" clip-path="url(#clip-path-2)">
+      <path id="패스_895" data-name="패스 895" d="M15.02,46.626a4.988,4.988,0,0,1,2.384-4.2,5.169,5.169,0,0,0-4.035-2.194c-1.721-.173-3.36,1.015-4.229,1.015s-2.22-.986-3.644-.958a5.4,5.4,0,0,0-4.57,2.766c-1.947,3.38-.5,8.388,1.4,11.128.926,1.342,2.031,2.848,3.482,2.794,1.4-.054,1.93-.9,3.621-.9s2.166.9,3.647.881c1.5-.031,2.459-1.373,3.377-2.714A12.25,12.25,0,0,0,17.984,51.1a4.872,4.872,0,0,1-2.963-4.471" transform="translate(-21631.896 -15500.896)"/>
+      <path id="패스_896" data-name="패스 896" d="M70.835,3.524A4.843,4.843,0,0,0,71.985,0a4.945,4.945,0,0,0-3.25,1.671A4.627,4.627,0,0,0,67.561,5.09a4.1,4.1,0,0,0,3.274-1.566" transform="translate(-21690.496 -15465.999)"/>
+    </g>
+  </g>
+</svg>
