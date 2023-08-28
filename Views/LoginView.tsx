@@ -33,7 +33,7 @@ function LoginView({navigation}: any):JSX.Element
     const onGoogleButtonPress = async () => {
         try 
         {
-            await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+            //await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
             const { idToken } = await GoogleSignin.signIn();
             const googleCredential = auth.GoogleAuthProvider.credential(idToken);
             auth().signInWithCredential(googleCredential);
