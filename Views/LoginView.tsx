@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import type {PropsWithChildren} from 'react';
 import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View, Image, Alert, Button, Platform, TouchableOpacity } from 'react-native';
 import { GoogleSignin, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
+import { appleAuth } from '@invertase/react-native-apple-authentication';
 import auth from '@react-native-firebase/auth'
 import GlobalContext from '../Components/GlobalContext';
 import Styles from '../Styles/CommonStyle';
@@ -14,18 +15,29 @@ import KakaoLogo from '../Assets/Images/etc/kakao_logo.svg'
 function LoginView({navigation}: any):JSX.Element
 {    
     const {storeData} = useContext(GlobalContext)
+
     const onAppleButtonPress = async () => {
         try 
         {
-            await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
-            const { idToken } = await GoogleSignin.signIn();
-            const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-            auth().signInWithCredential(googleCredential);
+            const appleAuthRequestResponse = await appleAuth.performRequest({
+                requestedOperation: appleAuth.Operation.LOGIN,
+                requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+            });
+
+            if (!appleAuthRequestResponse.identityToken) {
+                throw 'Apple Sign-In failed - no identify token returned';
+            }
+
+            const { identityToken, nonce } = appleAuthRequestResponse;
+            const appleCredential = auth.AppleAuthProvider.credential(identityToken, nonce);
+
             await storeData("login", "apple");
+            auth().signInWithCredential(appleCredential)
             navigation.reset({routes: [{name: 'Loading'}]});
         }
         catch(e)
         {
+            console.log(e);
             Alert.alert(e + "\n에러가 발생했습니다.")
         }
     }
