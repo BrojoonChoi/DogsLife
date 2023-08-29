@@ -282,6 +282,14 @@ const Styles = StyleSheet.create
         alignItems:"center",
         justifyContent:"center",
     },
+    tutorialImages :
+    {
+        width:"auto",
+        borderWidth:1,
+        borderColor: "#FFCFD5",
+        borderRadius: 16,
+        margin:5,
+    },
 })
 
 export default Styles

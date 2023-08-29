@@ -52,7 +52,23 @@ const Client = ({navigation}:any) => {
   }
 
   const StartProcess = async () => {
-    await getData("secret").then((result:string) => result !== null ? onDataInput(result) : setInputBoxVisible(true));
+    await getData("secret").then((result:string) => result !== null ? onDataInput(result) : isFirst());
+  }
+
+  const isFirst = async() => {
+    const offerRef = firebase.database().ref(`offers/${userToken}`);
+
+    offerRef.on("value", (snap) => {
+      if (snap.val() != null) {
+        console.log("connected");
+        setInputBoxVisible(true)
+        return;
+      } else {
+        console.log("not connected");
+        AskCameraSetting();
+        return;
+      }
+    })
   }
 
   const onDataInput = (salt:string) => {

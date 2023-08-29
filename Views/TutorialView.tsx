@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import type {PropsWithChildren} from 'react';
 import { SafeAreaView, ScrollView, Text, View, TouchableOpacity } from 'react-native';
 import Styles from '../Styles/CommonStyle';
@@ -9,12 +9,13 @@ import Swiper from 'react-native-swiper';
 
 function TutorialView({navigation}:any):JSX.Element
 {
-    const {script} = useContext(GlobalContext)
+    const {script, GlobalWidth} = useContext(GlobalContext);
+    const scrollRef = useRef();
     useEffect (() =>
     {
     }, [])
 
-    const [page, setPage] = useState(1)
+    const [page, setPage] = useState(0)
 
     const CustomPagination = () => {
         return (
@@ -27,7 +28,7 @@ function TutorialView({navigation}:any):JSX.Element
     }
 
     const CustumButton = () => {
-        if (page==1) {
+        if (page==0) {
             return (
                 <View style={{width:"100%", flexDirection:"row", justifyContent:"center", ...Styles.leftRightPadding}}>
                     <TouchableOpacity style={{width:"100%", backgroundColor:"#FE8291", ...Styles.bigButton}} onPress={() => Next()}>
@@ -35,7 +36,7 @@ function TutorialView({navigation}:any):JSX.Element
                     </TouchableOpacity>
                 </View>
             )
-        } else if (page==3) {
+        } else if (page==2) {
             return (
                 <View style={{width:"100%", flexDirection:"row", justifyContent:"center", ...Styles.leftRightPadding}}>
                 <TouchableOpacity style={{width:"100%", backgroundColor:"#EEEEEE", ...Styles.bigButton}} onPress={() => Prev()}>
@@ -59,10 +60,12 @@ function TutorialView({navigation}:any):JSX.Element
 
     const Prev = () => {
         setPage(page-1);
+        scrollRef.current.scrollTo({x:GlobalWidth*page, y:0, animated:true})
     }
     
     const Next = () => {
         setPage(page+1);
+        scrollRef.current.scrollTo({x:GlobalWidth*page, y:0, animated:true})
     }
 
     return (
@@ -72,13 +75,15 @@ function TutorialView({navigation}:any):JSX.Element
                 <Header navigation={navigation} title="튜토리얼" setting={false}/>
 
                 {/* main body */}
-                <View style={{width:"100%"}}>
-                    <View style={Styles.tutorialBox}>
-                        <Text style={{fontFamily:"AppleSDGothicNeoM", fontSize:13,}}>
-                            {script("Tutorial")}
-                        </Text>
-                    </View>
-                </View>
+                <ScrollView horizontal={true} ref={scrollRef}>
+                    {script("Tutorial").map((item:any, key:any) => {return (
+                        <View style={{width:GlobalWidth}} key={`myKey${key}`}>
+                            <View style={Styles.tutorialBox}>
+                                {item}
+                            </View>
+                        </View>
+                    )})}
+                </ScrollView>
                 {CustomPagination()}
                 {CustumButton()}
             {/*Footer*/}
