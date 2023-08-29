@@ -1,10 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView, Platform } from 'react-native';
 //import firebase from '@react-native-firebase/app'
 import database from '@react-native-firebase/database';
-import { RTCSessionDescription, RTCPeerConnection, mediaDevices, RTCIceCandidate, RTCView, MediaStream, } from 'react-native-webrtc';
+import { RTCSessionDescription, RTCPeerConnection, mediaDevices, RTCIceCandidate, RTCView, MediaStream } from 'react-native-webrtc';
 import GlobalContext from '../Components/GlobalContext';
 import Footer from '../Components/Footer'
+import { captureScreen } from '../android/app/src/ScreenCaptureModule'
+import { captureScreeniOS } from '../ios/dogslife/ScreenCaptureModule'
+
 
 let peerConstraints = {
 	iceServers: [
@@ -37,18 +40,13 @@ const Server = ({navigation}:any) => {
   const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt, userToken, UploadFile} = useContext(GlobalContext)
 
   const salt = generateSalt();
+  const platform = Platform.OS;
 
   const scheduledFunction = async () => {
-    /*
-    captureScreen({
-      format: "png",
-      quality: 0.8,
-      fileName:"temp"
-    }).then(
-      (uri) => UploadFile("temp", uri),
-      (error) => console.error("Oops, snapshot failed", error)
-    );
-    */
+    console.log(platform)
+    if (platform == "android") {
+      captureScreen();
+    }
     console.log("Scheduled function called at:", new Date());
   }
   
