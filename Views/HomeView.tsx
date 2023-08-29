@@ -16,10 +16,20 @@ import SettingIcon from '../Assets/Images/img_home_setting.svg'
 function HomeView({navigation, route}:any):JSX.Element
 {
     const { dataList } = route.params;
+    const {getData, storeData} = useContext(GlobalContext);
 
     useEffect (() =>
     {
+        init();
     }, [])
+
+    const init = async () => {
+        const result = await getData("tutorial");
+        if (result == null) {
+            storeData("tutorial", "done");
+            navigation.navigate("Tutorial");
+        }
+    }
 
     const dummyData = {api:[{title:"2023.01.01 12:00", text:"잔다."}, {title:"2023.01.02 12:00", text:"잔다."}, {title:"2023.01.03 12:00", text:"잔다."}, {title:"2023.01.04 12:00", text:"잔다."}]}
     const CamHistory = (title:string, text:string, key:any) => {

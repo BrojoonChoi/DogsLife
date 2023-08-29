@@ -11,17 +11,22 @@ function TutorialView({navigation}:any):JSX.Element
 {
     const {script, GlobalWidth} = useContext(GlobalContext);
     const scrollRef = useRef();
+    const [page, setPage] = useState(0)
+    const [progress, setProgress] = useState({ width:"0%" })
+
     useEffect (() =>
     {
-    }, [])
+        scrollRef.current.scrollTo({x:GlobalWidth*page, y:0, animated:true})
+        const currentPos = `${1 + page * 33}%`
+        setProgress({width:currentPos})
+    }, [page])
 
-    const [page, setPage] = useState(0)
 
     const CustomPagination = () => {
         return (
             <View style={{ width:"100%", paddingLeft:60, paddingRight:60, marginBottom:32}}>
                 <View style={{ backgroundColor:"#FFF2F4", borderRadius:4, width:"100%", height:8}}>
-                    <View style={{ backgroundColor:"#FFB0B3", borderRadius:4, width:"40%", height:8,}} />
+                    <View style={{backgroundColor:"#FFB0B3", borderRadius:4, ...progress, height:8}} />
                 </View>
             </View>
         )
@@ -36,21 +41,24 @@ function TutorialView({navigation}:any):JSX.Element
                     </TouchableOpacity>
                 </View>
             )
-        } else if (page==2) {
+        } else if (page==3) {
             return (
-                <View style={{width:"100%", flexDirection:"row", justifyContent:"center", ...Styles.leftRightPadding}}>
-                <TouchableOpacity style={{width:"100%", backgroundColor:"#EEEEEE", ...Styles.bigButton}} onPress={() => Prev()}>
-                    <Text style={{...Styles.loginButtonText, color:"#616161", fontFamily:"Cafe24Syongsyong",}} >이전</Text>
-                </TouchableOpacity>
+                <View style={{width:"100%", flexDirection:"column", justifyContent:"center", ...Styles.leftRightPadding}}>
+                    <TouchableOpacity style={{width:"100%", backgroundColor:"#EEEEEE", ...Styles.bigButton}} onPress={() => Prev()}>
+                        <Text style={{...Styles.loginButtonText, color:"#616161", fontFamily:"Cafe24Syongsyong",}} >이전</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{width:"100%", backgroundColor:"#FE8291", ...Styles.bigButton, marginTop:5}} onPress={() => navigation.popToTop()}>
+                        <Text style={{...Styles.loginButtonText, color:"#FFFFFF", fontFamily:"Cafe24Syongsyong",}} >완료</Text>
+                    </TouchableOpacity>
                 </View>
             )
         } else {
             return (
                 <View style={{width:"100%", flexDirection:"row", justifyContent:"center", ...Styles.leftRightPadding}}>
-                    <TouchableOpacity style={{width:"50%", backgroundColor:"#EEEEEE", ...Styles.bigButton}} onPress={() => Prev()}>
+                    <TouchableOpacity style={{width:"50%", backgroundColor:"#EEEEEE", ...Styles.smallButton}} onPress={() => Prev()}>
                         <Text style={{...Styles.loginButtonText, color:"#616161", fontFamily:"Cafe24Syongsyong",}} >이전</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{width:"50%", backgroundColor:"#FE8291", ...Styles.bigButton}} onPress={() => Next()}>
+                    <TouchableOpacity style={{width:"50%", backgroundColor:"#FE8291", ...Styles.smallButton}} onPress={() => Next()}>
                         <Text style={{...Styles.loginButtonText, color:"#FFFFFF", fontFamily:"Cafe24Syongsyong",}} >다음</Text>
                     </TouchableOpacity>
                 </View>
@@ -60,12 +68,11 @@ function TutorialView({navigation}:any):JSX.Element
 
     const Prev = () => {
         setPage(page-1);
-        scrollRef.current.scrollTo({x:GlobalWidth*page, y:0, animated:true})
+        
     }
     
     const Next = () => {
         setPage(page+1);
-        scrollRef.current.scrollTo({x:GlobalWidth*page, y:0, animated:true})
     }
 
     return (
@@ -75,15 +82,19 @@ function TutorialView({navigation}:any):JSX.Element
                 <Header navigation={navigation} title="튜토리얼" setting={false}/>
 
                 {/* main body */}
-                <ScrollView horizontal={true} ref={scrollRef}>
-                    {script("Tutorial").map((item:any, key:any) => {return (
-                        <View style={{width:GlobalWidth}} key={`myKey${key}`}>
-                            <View style={Styles.tutorialBox}>
-                                {item}
+                <View style={{height:473, marginBottom:10,}}>
+                    <ScrollView horizontal={true} ref={scrollRef}
+                    showsHorizontalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}>
+                        {script("Tutorial").map((item:any, key:any) => {return (
+                            <View style={{width:GlobalWidth}} key={`myKey${key}`}>
+                                <View style={Styles.tutorialBox}>
+                                    {item}
+                                </View>
                             </View>
-                        </View>
-                    )})}
-                </ScrollView>
+                        )})}
+                    </ScrollView>
+                </View>
                 {CustomPagination()}
                 {CustumButton()}
             {/*Footer*/}
@@ -92,3 +103,5 @@ function TutorialView({navigation}:any):JSX.Element
 }
 
 export default TutorialView
+
+/* <View style={{ backgroundColor:"#FFB0B3", borderRadius:4, width:"40%", height:8,[styles.box, { top, left }]}} /> */

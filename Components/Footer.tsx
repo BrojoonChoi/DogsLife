@@ -10,12 +10,19 @@ import ImgNavHome from '../Assets/Images/img_home_nav_home.svg'
 
 function Footer({navigation}:any):JSX.Element
 {
+    const goHome = () => {
+        try {
+            navigation.popToTop();
+        } catch {
+            return;
+        }
+    }
     return (
         <View style={Styles.footer}>
             <Shadow distance={15} startColor={'#0000000F'} endColor={'#FFFFFF00'} offset={[0, 0]} style={{width:"100%",}}/>
             <View style={{backgroundColor: '#FFF2F4', flexDirection:"row"}}>
                 <TouchableOpacity >
-                    <ImgNavHome onPress={() => navigation.popToTop()}/>
+                    <ImgNavHome onPress={() => goHome()}/>
                 </TouchableOpacity>
                 <TouchableOpacity>
                     <ImgNavDiary onPress={() => navigation.navigate("Home")}/>

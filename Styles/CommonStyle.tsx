@@ -272,7 +272,6 @@ const Styles = StyleSheet.create
         marginLeft:21,
         marginRight:21,
         padding:10,
-        marginBottom:10,
     },
     bigButton :
     {
@@ -281,6 +280,15 @@ const Styles = StyleSheet.create
         color : "#FE8291",
         alignItems:"center",
         justifyContent:"center",
+    },
+    smallButton :
+    {
+        height:46,
+        borderRadius:16,
+        color : "#FE8291",
+        alignItems:"center",
+        justifyContent:"center",
+        margin:5,
     },
     tutorialImages :
     {
