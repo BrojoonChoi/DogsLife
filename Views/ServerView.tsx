@@ -52,7 +52,7 @@ const Server = ({navigation}:any) => {
           skipMetadata: true
         })
         console.log(snapshot);
-        UploadFile("")
+        UploadFile("file.jpg", snapshot.path)
       } catch (error) {
         console.error('Error while taking picture:', error);
       }
@@ -188,7 +188,7 @@ const Server = ({navigation}:any) => {
   return (
     <SafeAreaView style={{flex:1}}>
       {
-        captureMode ? 
+        captureMode && device != null ? 
         <Camera
           style={{flex:1}}
           device={device}
