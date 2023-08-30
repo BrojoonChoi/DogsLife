@@ -6,8 +6,8 @@ const { ScreenCaptureModule } = NativeModules;
 
 export const captureScreen = async () => {
   try {
-    const filePath = await ScreenCaptureModule.captureScreen();
-    console.log('Captured image file path:', filePath);
+    const base64Img = await ScreenCaptureModule.captureScreen();
+    return base64Img;
   } catch (error) {
     console.error('Error capturing screen:', error);
   }

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { SafeAreaView, Platform } from 'react-native';
+import { SafeAreaView, Platform, Image } from 'react-native';
 //import firebase from '@react-native-firebase/app'
 import database from '@react-native-firebase/database';
 import { RTCSessionDescription, RTCPeerConnection, mediaDevices, RTCIceCandidate, RTCView, MediaStream } from 'react-native-webrtc';
@@ -36,6 +36,7 @@ const Server = ({navigation}:any) => {
   const [localStream, setLocalStream] = useState(null);
   const [captureMode, setCaptureMode] = useState(true);
   const [pc, setPc] = useState(new RTCPeerConnection(peerConstraints));
+  const [uri, setUri] = useState("")
 
   const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt, userToken, UploadFile} = useContext(GlobalContext)
 
@@ -43,9 +44,8 @@ const Server = ({navigation}:any) => {
   const platform = Platform.OS;
 
   const scheduledFunction = async () => {
-    console.log(platform)
     if (platform == "android") {
-      captureScreen();
+      captureScreen().then((item) => setUri(item.string));
     }
     console.log("Scheduled function called at:", new Date());
   }
@@ -56,7 +56,7 @@ const Server = ({navigation}:any) => {
   
     // 다음 호출까지 남은 시간 계산
     //const millisecondsUntilNextCall = (15 - minutesRemainder) * 60 * 1000;
-    const millisecondsUntilNextCall = 3000 * 60;
+    const millisecondsUntilNextCall = 1000 * 60;
   
     //scheduledFunction(); // 처음에 함수를 바로 호출
   
@@ -172,7 +172,8 @@ const Server = ({navigation}:any) => {
 
   return (
     <SafeAreaView style={{flex:1}}>
-      {localStream && <RTCView streamURL={localStream.toURL()} mirror={true} style={{ flex: 1 }} objectFit={'cover'}/>}
+      {/*localStream && <RTCView streamURL={localStream.toURL()} mirror={true} style={{ flex: 1 }} objectFit={'cover'}/>*/}
+      <Image style={{flex:1}} source={{uri: `data:image/png;base64,${uri}`}}/>
       <Footer navigation={navigation}/>
     </SafeAreaView>
   );
