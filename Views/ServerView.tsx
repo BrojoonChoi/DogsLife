@@ -1,13 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { SafeAreaView, Platform, Image } from 'react-native';
 //import firebase from '@react-native-firebase/app'
 import database from '@react-native-firebase/database';
 import { RTCSessionDescription, RTCPeerConnection, mediaDevices, RTCIceCandidate, RTCView, MediaStream } from 'react-native-webrtc';
 import GlobalContext from '../Components/GlobalContext';
 import Footer from '../Components/Footer'
-import { captureScreen } from '../android/app/src/ScreenCaptureModule'
-import { captureScreeniOS } from '../ios/dogslife/ScreenCaptureModule'
-
+import { Camera, useCameraDevices } from 'react-native-vision-camera';
 
 let peerConstraints = {
 	iceServers: [
@@ -37,16 +35,33 @@ const Server = ({navigation}:any) => {
   const [captureMode, setCaptureMode] = useState(true);
   const [pc, setPc] = useState(new RTCPeerConnection(peerConstraints));
   const [uri, setUri] = useState("")
+  const cameraRef = useRef<Camera>(null);
+
+  const devices = useCameraDevices();
+  const device = devices.back;
 
   const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt, userToken, UploadFile} = useContext(GlobalContext)
 
   const salt = generateSalt();
-  const platform = Platform.OS;
+
+  const takePicture = async () => {
+    if (cameraRef.current && captureMode) {
+      try {
+        const snapshot = await cameraRef.current.takeSnapshot({
+          quality: 85,
+          skipMetadata: true
+        })
+        console.log(snapshot);
+        UploadFile("")
+      } catch (error) {
+        console.error('Error while taking picture:', error);
+      }
+    }
+  };
+
 
   const scheduledFunction = async () => {
-    if (platform == "android") {
-      captureScreen().then((item) => setUri(item.string));
-    }
+    takePicture();
     console.log("Scheduled function called at:", new Date());
   }
   
@@ -172,11 +187,21 @@ const Server = ({navigation}:any) => {
 
   return (
     <SafeAreaView style={{flex:1}}>
-      {/*localStream && <RTCView streamURL={localStream.toURL()} mirror={true} style={{ flex: 1 }} objectFit={'cover'}/>*/}
-      <Image style={{flex:1}} source={{uri: `data:image/png;base64,${uri}`}}/>
+      {
+        captureMode ? 
+        <Camera
+          style={{flex:1}}
+          device={device}
+          isActive={true}
+          ref={cameraRef}
+          photo={true}
+        />
+        : localStream && <RTCView streamURL={localStream.toURL()} mirror={true} style={{ flex: 1 }} objectFit={'cover'}/>
+      }
       <Footer navigation={navigation}/>
     </SafeAreaView>
   );
 };
 
 export default Server;
+/*<Image style={{flex:1}} source={{uri: `data:image/png;base64,${uri}`}}/>*/

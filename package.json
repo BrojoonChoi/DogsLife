@@ -33,6 +33,7 @@
     "react-native-svg": "^13.11.0",
     "react-native-svg-transformer": "^1.1.0",
     "react-native-swiper": "^1.6.0",
+    "react-native-vision-camera": "^2.15.6",
     "react-native-webrtc": "^111.0.3",
     "rn-crypto-js": "^1.1.2"
   },
