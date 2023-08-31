@@ -8,6 +8,7 @@ import firebase from '@react-native-firebase/app'
 import Styles from '../Styles/CommonStyle';
 import { request, PERMISSIONS } from 'react-native-permissions';
 import GlobalContext from '../Components/GlobalContext';
+import database from '@react-native-firebase/database';
 
 import ImgBackground from '../Assets/Images/img_loading_background.svg'
 import ImgLogo from '../Assets/Images/img_loading_logo.svg'
@@ -15,6 +16,7 @@ import ImgLogo from '../Assets/Images/img_loading_logo.svg'
 function LoadingView({navigation, dataList}: any):JSX.Element
 {
     const {userToken, setUserToken, GlobalWidth, GlobalHeight, GetCachePath, CheckCacheFile, SaveCacheFile, getData} = useContext(GlobalContext);
+    const [login, setLogin] = useState(false);
 
     const DownloadBanner = async() => {
         const firebasePath:any = [];
@@ -35,9 +37,42 @@ function LoadingView({navigation, dataList}: any):JSX.Element
         return imageList
     }
 
+    const DownloadTimeline = async() => {
+        if (userToken == null) return;
+        const firebasePath:any = [];
+        const titleAndText = database().ref(`data/${userToken}/timeLine/`);
+        
+        await titleAndText.limitToLast(5).once("value").then(async (snap) => {
+            const data = await snap.val();
+            for (const key in data) {
+                if (Object.prototype.hasOwnProperty.call(data, key)) {
+                  const item = data[key];
+                  firebasePath.push(item);
+                }
+              }
+        });
+        
+        const imageList:any = []
+        await Promise.all(firebasePath.map(async (item:any)  => {
+            const path = item.title;
+            const tempPath = await GetCachePath(`timeline/${path}`);
+            await storage().ref(`${userToken}/${path}`).getDownloadURL().then((url) => console.log(url));
+            try {
+                await CheckCacheFile(tempPath) ? 
+                imageList.push(tempPath) :
+                await storage().ref(`${userToken}/${path}`).getDownloadURL().then((url) => SaveCacheFile(url, tempPath)).then(imageList.push(tempPath))
+            }catch (exception) {
+                console.log("test : " + tempPath)
+                return undefined;
+            }
+        }));
+        //return imageList
+        if (firebasePath.length == 0) return undefined;
+        return {firebasePath, imageList};
+    }
 
     const Home = async () => {
-        const dataList = {imageList:await DownloadBanner(), dummy:"test"};
+        const dataList = {imageList:await DownloadBanner(), timeLine:await DownloadTimeline()};
         navigation.reset({routes: [{ name: 'Home', params: { dataList: dataList } }] })
     }
 
@@ -60,7 +95,9 @@ function LoadingView({navigation, dataList}: any):JSX.Element
     }
 
     firebase.auth().onAuthStateChanged(user => {
-        setUserToken(user?.uid)
+        if (user == null) return;
+        setUserToken(user?.uid);
+        Home();        
     })
 
     const checkAutoLogin = async () => {
@@ -72,7 +109,6 @@ function LoadingView({navigation, dataList}: any):JSX.Element
                 const { idToken } = await GoogleSignin.signIn();
                 const googleCredential = auth.GoogleAuthProvider.credential(idToken);
                 auth().signInWithCredential(googleCredential);
-                Home();
             }
             catch(e)
             {

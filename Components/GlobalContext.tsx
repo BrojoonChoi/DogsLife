@@ -2,6 +2,7 @@ import React, {useState, useContext, createContext, useEffect} from 'react';
 import {Alert, Modal, StyleSheet, Text, TouchableOpacity, View, Dimensions, Platform } from 'react-native';
 import CryptoJS from 'rn-crypto-js'
 import RNFS from 'react-native-fs';
+import database from '@react-native-firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import storage from '@react-native-firebase/storage'
 import Scripts from '../Language/kor';
@@ -145,6 +146,20 @@ export function GlobalContextProvider ({children}:any) {
       }
       return (value)
     }
+    
+    const UploadData = async (path:string, value:any, secret:string = "") => {
+      const userDirRef = database().ref(`data/${userToken}/${path}/`);
+      console.log(value)
+      if (secret != "") {
+        userDirRef.push(encryptWithSalt(value, secret));
+        return;
+      }
+      userDirRef.push(value);
+    }
+    
+    const DownloadData = async (path:string, value:string, secret:string = "") => {
+      return;
+    }
 
     return (
         <GlobalContext.Provider value={{
@@ -154,7 +169,7 @@ export function GlobalContextProvider ({children}:any) {
             modalNotificationVisible, ShowNotification,
             modalOKCancelVisible, ShowOKCancel, onModalOK,
             GlobalWidth, GlobalHeight, GetCachePath, CheckCacheFile, SaveCacheFile,
-            storeData, getData, UploadFile, script
+            storeData, getData, UploadFile, script, UploadData, DownloadData
         }}>
             {children}
         </GlobalContext.Provider>

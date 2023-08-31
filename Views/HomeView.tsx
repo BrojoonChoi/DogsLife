@@ -24,14 +24,14 @@ function HomeView({navigation, route}:any):JSX.Element
     }, [])
 
     const init = async () => {
+        console.log(dataList.timeLine);
         const result = await getData("tutorial");
         if (result == null) {
             storeData("tutorial", "done");
             navigation.navigate("Tutorial");
         }
     }
-
-    const dummyData = {api:[{title:"2023.01.01 12:00", text:"잔다."}, {title:"2023.01.02 12:00", text:"잔다."}, {title:"2023.01.03 12:00", text:"잔다."}, {title:"2023.01.04 12:00", text:"잔다."}]}
+    const dummyData = {api:[{title:"2023.01.01 12:00", text:"CCTV를 사용하면,"}, {title:"2023.01.01 12:00", text:"강아지가 뭘 하는지."}, {title:"2023.01.01 12:00", text:"타임라인을 남겨드립니다."}]}
     const CamHistory = (title:string, text:string, key:any) => {
         return (
             <View key={`camkey${key}`} style={{justifyContent:"flex-start", flexDirection:"row", width:"100%", marginBottom:8}}>
@@ -94,7 +94,12 @@ function HomeView({navigation, route}:any):JSX.Element
 
                 <View style={Styles.timeLine}>
                     {
+                        dataList.timeLine == undefined ? 
                         dummyData.api.map((contents:any, key:any) => {
+                            return CamHistory(contents.title, contents.text, key)
+                        }) 
+                        :
+                        dataList.timeLine.map((contents:any, key:any) => {
                             return CamHistory(contents.title, contents.text, key)
                         })
                     }

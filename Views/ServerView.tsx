@@ -6,6 +6,7 @@ import { RTCSessionDescription, RTCPeerConnection, mediaDevices, RTCIceCandidate
 import GlobalContext from '../Components/GlobalContext';
 import Footer from '../Components/Footer'
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
+import KeepAwake from 'react-native-keep-awake';
 
 let peerConstraints = {
 	iceServers: [
@@ -40,25 +41,40 @@ const Server = ({navigation}:any) => {
   const devices = useCameraDevices();
   const device = devices.back;
 
-  const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt, userToken, UploadFile} = useContext(GlobalContext)
+  const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt, userToken, UploadFile, UploadData} = useContext(GlobalContext)
 
   const salt = generateSalt();
 
   const takePicture = async () => {
     if (cameraRef.current && captureMode) {
       try {
+        const timeStamp = makeDate();
+        console.log(timeStamp)
         const snapshot = await cameraRef.current.takeSnapshot({
-          quality: 85,
-          skipMetadata: true
+          quality: 80,
+          skipMetadata: true,
         })
-        console.log(snapshot);
-        UploadFile("file.jpg", snapshot.path)
+        UploadFile(`${timeStamp}`, snapshot.path);
+        UploadData("timeLine", {title:`${timeStamp}`, text:`잔다.`});
       } catch (error) {
         console.error('Error while taking picture:', error);
       }
     }
   };
 
+  const makeDate = () => {
+    var today = new Date();
+
+    var year = today.getFullYear();
+    var month = (today.getMonth() + 1).toString().padStart(2, '0');
+    var day = today.getDate().toString().padStart(2, '0');
+    var hour = today.getHours();
+    var mins = today.getMinutes();
+    
+    // 형식에 맞게 조합
+    var formattedDate = `${year}-${month}-${day} ${hour}:${mins}`
+    return formattedDate;
+  }
 
   const scheduledFunction = async () => {
     takePicture();
@@ -69,11 +85,8 @@ const Server = ({navigation}:any) => {
     const minutes = new Date().getMinutes();
     const minutesRemainder = minutes % 15; // 15분 간격으로 호출
   
-    // 다음 호출까지 남은 시간 계산
     //const millisecondsUntilNextCall = (15 - minutesRemainder) * 60 * 1000;
-    const millisecondsUntilNextCall = 1000 * 60;
-  
-    //scheduledFunction(); // 처음에 함수를 바로 호출
+    const millisecondsUntilNextCall = 61 * 1000;
   
     setInterval(() => {
       scheduledFunction(); // 함수 호출
@@ -90,6 +103,7 @@ const Server = ({navigation}:any) => {
     createOffer(salt);
     setCaptureMode(true);
     console.log("disconnected");
+    KeepAwake.deactivate();
   }
 
   useEffect (() => {
@@ -98,6 +112,7 @@ const Server = ({navigation}:any) => {
   },[])
 
   const StartProcess = () => {
+    KeepAwake.activate();
     ShowNotification(salt, "일상용 핸드폰에 이 번호를 입력하세요.")
     
     setPc(new RTCPeerConnection(peerConstraints));
@@ -164,6 +179,9 @@ const Server = ({navigation}:any) => {
 
     pc.addEventListener('connectionstatechange', async event => {
       switch( pc.connectionState ) {
+        case 'connected':
+          setCaptureMode(false);
+          break;
         case 'closed':
           SessionDestroy();
           return;
