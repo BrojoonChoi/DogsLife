@@ -9,6 +9,7 @@ import { GoogleSignin, GoogleSigninButton, GoogleSigninButtonProps } from '@reac
 import firebase from '@react-native-firebase/app'
 import database from '@react-native-firebase/database';
 
+import ImgNavCamera from '../Assets/Images/img_home_nav_camera.svg'
 import ImgBiz from '../Assets/Images/img_setting_icon_bizoffer.svg'
 import ImgLogout from '../Assets/Images/img_setting_icon_logout.svg'
 import ImgTerms from '../Assets/Images/img_setting_icon_termandcondition.svg'
@@ -43,6 +44,9 @@ function SettingView({navigation}:any):JSX.Element
             case "logout" : {
                 return (<ImgLogout width={20} height={20} />);
             }
+            case "ImgNavCamera" : {
+                return (<ImgNavCamera width={20} height={20} />);
+            }
         }
     }
 
@@ -73,6 +77,7 @@ function SettingView({navigation}:any):JSX.Element
                 {MakeOption({title:"튜토리얼", logo:"tutorial", onClick:() => navigation.navigate("Tutorial")})}
                 {MakeOption({title:"약관 및 정책", logo:"terms",  onClick:() => console.log("test")})}
                 {MakeOption({title:"제휴 문의", logo:"coOp",  onClick:() => console.log("test")})}
+                {MakeOption({title:"카메라 설정", logo:"ImgNavCamera",  onClick:() => navigation.navigate("Server")})}
                 {MakeOption({title:"로그아웃", logo:"logout",  onClick:() => onLogout()})}
 
             </ScrollView>

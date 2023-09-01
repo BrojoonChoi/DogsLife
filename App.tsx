@@ -15,6 +15,7 @@ import ClientView from './Views/ClientView';
 import ServerView from './Views/ServerView';
 import SettingView from './Views/SettingView';
 import TutorialView from './Views/TutorialView';
+import DiaryView from './Views/DiaryView';
 
 
 const firebaseConfig = {
@@ -47,6 +48,7 @@ function App(): JSX.Element {
           <Stack.Screen name='Server' component={ServerView}/>
           <Stack.Screen name='Setting' component={SettingView}/>
           <Stack.Screen name='Tutorial' component={TutorialView}/>
+          <Stack.Screen name='Diary' component={DiaryView}/>
         </Stack.Navigator>
         <ModalNotification />
         <ModalOKCancel />

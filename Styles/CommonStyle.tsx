@@ -108,6 +108,7 @@ const Styles = StyleSheet.create
         alignItems:"center",
         marginLeft:21,
         marginRight:21,
+        marginBottom:21,
     },
     viewMoreButtonText :
     {

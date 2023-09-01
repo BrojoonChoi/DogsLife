@@ -96,6 +96,7 @@ export function GlobalContextProvider ({children}:any) {
     const [modalText, setModalText] = useState("");
     const [userToken, setUserToken] = useState(null)
     const [onModalOK, setOnModalOK] = useState();
+    const [timeline, setTimeline] = useState();
     
     const UploadFile = async (path:string, uri:string) => {
       const reference = storage().ref(`/${userToken}/${path}`);
@@ -169,7 +170,8 @@ export function GlobalContextProvider ({children}:any) {
             modalNotificationVisible, ShowNotification,
             modalOKCancelVisible, ShowOKCancel, onModalOK,
             GlobalWidth, GlobalHeight, GetCachePath, CheckCacheFile, SaveCacheFile,
-            storeData, getData, UploadFile, script, UploadData, DownloadData
+            storeData, getData, UploadFile, script, UploadData, DownloadData,
+            timeline, setTimeline
         }}>
             {children}
         </GlobalContext.Provider>

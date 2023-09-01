@@ -55,7 +55,7 @@ const Server = ({navigation}:any) => {
           skipMetadata: true,
         })
         UploadFile(`${timeStamp}`, snapshot.path);
-        UploadData("timeLine", {title:`${timeStamp}`, text:`잔다.`});
+        UploadData("timeLine", {title:`${timeStamp}`, text:``});
       } catch (error) {
         console.error('Error while taking picture:', error);
       }
@@ -68,8 +68,8 @@ const Server = ({navigation}:any) => {
     var year = today.getFullYear();
     var month = (today.getMonth() + 1).toString().padStart(2, '0');
     var day = today.getDate().toString().padStart(2, '0');
-    var hour = today.getHours();
-    var mins = today.getMinutes();
+    var hour = today.getHours().toString().padStart(2, '0');
+    var mins = today.getMinutes().toString().padStart(2, '0');
     
     // 형식에 맞게 조합
     var formattedDate = `${year}-${month}-${day} ${hour}:${mins}`
@@ -77,16 +77,15 @@ const Server = ({navigation}:any) => {
   }
 
   const scheduledFunction = async () => {
-    takePicture();
     console.log("Scheduled function called at:", new Date());
+    takePicture();
   }
   
   function scheduleIntervalFunction() {
     const minutes = new Date().getMinutes();
     const minutesRemainder = minutes % 15; // 15분 간격으로 호출
   
-    //const millisecondsUntilNextCall = (15 - minutesRemainder) * 60 * 1000;
-    const millisecondsUntilNextCall = 61 * 1000;
+    const millisecondsUntilNextCall = (15 - minutesRemainder) * 60 * 1000;
   
     setInterval(() => {
       scheduledFunction(); // 함수 호출
@@ -180,6 +179,7 @@ const Server = ({navigation}:any) => {
     pc.addEventListener('connectionstatechange', async event => {
       switch( pc.connectionState ) {
         case 'connected':
+          console.log("coonected");
           setCaptureMode(false);
           break;
         case 'closed':

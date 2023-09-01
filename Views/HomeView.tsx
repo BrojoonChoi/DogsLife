@@ -15,7 +15,7 @@ import SettingIcon from '../Assets/Images/img_home_setting.svg'
 
 function HomeView({navigation, route}:any):JSX.Element
 {
-    const { dataList } = route.params;
+    const { dataList, timeLine } = route.params;
     const {getData, storeData} = useContext(GlobalContext);
 
     useEffect (() =>
@@ -24,20 +24,19 @@ function HomeView({navigation, route}:any):JSX.Element
     }, [])
 
     const init = async () => {
-        console.log(dataList.timeLine);
         const result = await getData("tutorial");
         if (result == null) {
             storeData("tutorial", "done");
             navigation.navigate("Tutorial");
         }
     }
-    const dummyData = {api:[{title:"2023.01.01 12:00", text:"CCTV를 사용하면,"}, {title:"2023.01.01 12:00", text:"강아지가 뭘 하는지."}, {title:"2023.01.01 12:00", text:"타임라인을 남겨드립니다."}]}
-    const CamHistory = (title:string, text:string, key:any) => {
+    const dummyData = {api:[{title:"2023.01.01 12:00", text:"CCTV를 사용하면,", image:""}, {title:"2023.01.01 12:15", text:"강아지가 뭘 하는지.", image:""}, {title:"2023.01.01 12:30", text:"타임라인을 남겨드립니다.", image:""}]}
+    const CamHistory = (title:string, text:string, image:string, key:any) => {
         return (
             <View key={`camkey${key}`} style={{justifyContent:"flex-start", flexDirection:"row", width:"100%", marginBottom:8}}>
                 {/*left image zone*/}
                 <View style={{justifyContent:"center", alignItems:"flex-start", marginRight:16}}>
-                    <Image style={Styles.camImage} source={require("../Assets/Images/temp_img.png")}/>
+                    {image == "" ? <Image style={Styles.camImage} source={require("../Assets/Images/temp_img.png")}/> : <Image style={Styles.camImage} source={{uri:image}}/>}
                 </View>
                 {/*right text zone*/}
                 <View style={{justifyContent:"center", alignItems:"flex-start", }}>
@@ -69,7 +68,7 @@ function HomeView({navigation, route}:any):JSX.Element
                 <View style={{width:"100%", alignItems:"center", justifyContent:"center"}}>
                     <View style={Styles.bannerContainer}>
                         {
-                            dataList.imageList == undefined ? <Image source={require("../Assets/Images/img_home_banner_loading.png")} style={Styles.banner}/> :
+                            dataList == undefined ? <Image source={require("../Assets/Images/img_home_banner_loading.png")} style={Styles.banner}/> :
                             <Swiper 
                             autoplay={true} 
                             showsPagination={true}
@@ -80,7 +79,7 @@ function HomeView({navigation, route}:any):JSX.Element
                             autoplayTimeout={3} 
                             activeDotColor='#FFCFD5' dotColor='#FFF2F4'>
                             {
-                                dataList.imageList?.map((image:any, key:any) =>
+                                dataList?.map((image:any, key:any) =>
                                 {
                                     return (<Image source={{uri:image}} key={`key${key}${image}`} style={Styles.banner}/>)
                                 })
@@ -94,13 +93,13 @@ function HomeView({navigation, route}:any):JSX.Element
 
                 <View style={Styles.timeLine}>
                     {
-                        dataList.timeLine == undefined ? 
+                        timeLine == undefined ? 
                         dummyData.api.map((contents:any, key:any) => {
-                            return CamHistory(contents.title, contents.text, key)
+                            return CamHistory(contents.title, contents.text, contents.image, key)
                         }) 
                         :
-                        dataList.timeLine.map((contents:any, key:any) => {
-                            return CamHistory(contents.title, contents.text, key)
+                        timeLine.map((contents:any, key:any) => {
+                            return CamHistory(contents.title, contents.text, contents.image, key)
                         })
                     }
                 </View>

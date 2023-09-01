@@ -15,7 +15,7 @@ import ImgLogo from '../Assets/Images/img_loading_logo.svg'
 
 function LoadingView({navigation, dataList}: any):JSX.Element
 {
-    const {userToken, setUserToken, GlobalWidth, GlobalHeight, GetCachePath, CheckCacheFile, SaveCacheFile, getData} = useContext(GlobalContext);
+    const {userToken, setUserToken, GlobalWidth, GlobalHeight, GetCachePath, CheckCacheFile, SaveCacheFile, getData, setTimeline} = useContext(GlobalContext);
     const [login, setLogin] = useState(false);
 
     const DownloadBanner = async() => {
@@ -42,38 +42,40 @@ function LoadingView({navigation, dataList}: any):JSX.Element
         const firebasePath:any = [];
         const titleAndText = database().ref(`data/${userToken}/timeLine/`);
         
-        await titleAndText.limitToLast(5).once("value").then(async (snap) => {
+        await titleAndText.limitToLast(5).once("value")
+        .then(async (snap) => {
             const data = await snap.val();
             for (const key in data) {
                 if (Object.prototype.hasOwnProperty.call(data, key)) {
-                  const item = data[key];
-                  firebasePath.push(item);
+                    const item = data[key];
+
+                    const path = item.title;
+                    const tempPath = await GetCachePath(`timeline/${path}`);
+                    let tempResult;
+                    try {
+                        await CheckCacheFile(tempPath) ? 
+                        tempResult = tempPath :
+                        await storage().ref(`${userToken}/${path}`).getDownloadURL().then((url) => SaveCacheFile(url, tempPath)).then(tempResult = tempPath)
+                    }catch (exception) {
+                        console.log("test : " + tempPath)
+                    }
+
+                    const pushedResult = {...item, image:tempResult};
+                    firebasePath.push(pushedResult);
                 }
               }
         });
-        
-        const imageList:any = []
-        await Promise.all(firebasePath.map(async (item:any)  => {
-            const path = item.title;
-            const tempPath = await GetCachePath(`timeline/${path}`);
-            await storage().ref(`${userToken}/${path}`).getDownloadURL().then((url) => console.log(url));
-            try {
-                await CheckCacheFile(tempPath) ? 
-                imageList.push(tempPath) :
-                await storage().ref(`${userToken}/${path}`).getDownloadURL().then((url) => SaveCacheFile(url, tempPath)).then(imageList.push(tempPath))
-            }catch (exception) {
-                console.log("test : " + tempPath)
-                return undefined;
-            }
-        }));
+
         //return imageList
         if (firebasePath.length == 0) return undefined;
-        return {firebasePath, imageList};
+        return firebasePath;
     }
 
     const Home = async () => {
-        const dataList = {imageList:await DownloadBanner(), timeLine:await DownloadTimeline()};
-        navigation.reset({routes: [{ name: 'Home', params: { dataList: dataList } }] })
+        const timeLine = await DownloadTimeline();
+        setTimeline(timeLine);
+        const dataList = await DownloadBanner();
+        navigation.reset({routes: [{ name: 'Home', params: { dataList: dataList , timeLine:timeLine} }] })
     }
 
     const requestMediaPermissions = async () => {
@@ -97,7 +99,6 @@ function LoadingView({navigation, dataList}: any):JSX.Element
     firebase.auth().onAuthStateChanged(user => {
         if (user == null) return;
         setUserToken(user?.uid);
-        Home();        
     })
 
     const checkAutoLogin = async () => {
@@ -125,6 +126,10 @@ function LoadingView({navigation, dataList}: any):JSX.Element
         requestMediaPermissions();
         checkAutoLogin();
     },[])
+    
+    useEffect (() => {
+        Home();
+    },[userToken])
 
     return (
         <View style={Styles.mainBody}>

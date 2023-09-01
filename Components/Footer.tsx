@@ -20,15 +20,12 @@ function Footer({navigation}:any):JSX.Element
     return (
         <View style={Styles.footer}>
             <Shadow distance={15} startColor={'#0000000F'} endColor={'#FFFFFF00'} offset={[0, 0]} style={{width:"100%",}}/>
-            <View style={{backgroundColor: '#FFF2F4', flexDirection:"row"}}>
+            <View style={{backgroundColor: '#FFF2F4', flexDirection:"row", justifyContent:"space-between", ...Styles.leftRightPadding}}>
                 <TouchableOpacity >
                     <ImgNavHome onPress={() => goHome()}/>
                 </TouchableOpacity>
                 <TouchableOpacity>
-                    <ImgNavDiary onPress={() => navigation.navigate("Home")}/>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                    <ImgNavCamera onPress={() => navigation.navigate("Server")}/>
+                    <ImgNavDiary onPress={() => navigation.navigate("Diary")}/>
                 </TouchableOpacity>
                 <TouchableOpacity>
                     <ImgNavCCTV onPress={() => navigation.navigate("Client")}/>

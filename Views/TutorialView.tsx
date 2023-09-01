@@ -21,7 +21,6 @@ function TutorialView({navigation}:any):JSX.Element
         setProgress({width:currentPos})
     }, [page])
 
-
     const CustomPagination = () => {
         return (
             <View style={{ width:"100%", paddingLeft:60, paddingRight:60, marginBottom:32}}>
@@ -84,6 +83,7 @@ function TutorialView({navigation}:any):JSX.Element
                 {/* main body */}
                 <View style={{height:473, marginBottom:10,}}>
                     <ScrollView horizontal={true} ref={scrollRef}
+                    scrollEnabled={false}
                     showsHorizontalScrollIndicator={false}
                     showsVerticalScrollIndicator={false}>
                         {script("Tutorial").map((item:any, key:any) => {return (
