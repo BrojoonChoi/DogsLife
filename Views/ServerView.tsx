@@ -5,7 +5,7 @@ import database from '@react-native-firebase/database';
 import { RTCSessionDescription, RTCPeerConnection, mediaDevices, RTCIceCandidate, RTCView, MediaStream } from 'react-native-webrtc';
 import GlobalContext from '../Components/GlobalContext';
 import Footer from '../Components/Footer'
-import { Camera, useCameraDevices } from 'react-native-vision-camera';
+import { Camera, useCameraDevices, useFrameProcessor } from 'react-native-vision-camera';
 import KeepAwake from 'react-native-keep-awake';
 
 let peerConstraints = {
@@ -44,6 +44,13 @@ const Server = ({navigation}:any) => {
   const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt, userToken, UploadFile, UploadData} = useContext(GlobalContext)
 
   const salt = generateSalt();
+
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet';
+
+    console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`);
+    examplePlugin(frame);
+  }, []);
 
   const takePicture = async () => {
     if (cameraRef.current && captureMode) {
@@ -86,6 +93,7 @@ const Server = ({navigation}:any) => {
     const minutesRemainder = minutes % 15; // 15분 간격으로 호출
   
     const millisecondsUntilNextCall = (15 - minutesRemainder) * 60 * 1000;
+    console.log(millisecondsUntilNextCall);
   
     setInterval(() => {
       scheduledFunction(); // 함수 호출
@@ -127,14 +135,17 @@ const Server = ({navigation}:any) => {
       });
       */
     };
-    
-    const stream = await mediaDevices.getUserMedia(mediaConstraints);
-    setLocalStream(stream);
-    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
     // Create an offer and set it as local description
     const offer = await pc.createOffer(sessionConstraints);
     await pc.setLocalDescription(offer);
+    
+    const stream = await mediaDevices.getUserMedia(mediaConstraints);
+    setLocalStream(stream);
+    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    localStream.getTracks().forEach(
+      track => track.stop()
+    );
 
     // Store the offer (SDP) in Firebase
     const offerRef = database().ref(`offers/${userToken}`);
@@ -181,6 +192,12 @@ const Server = ({navigation}:any) => {
         case 'connected':
           console.log("coonected");
           setCaptureMode(false);
+          localStream.getTracks().forEach(
+            track => {
+              track.enable = true;
+              track._readyState = "live";
+            }
+          );
           break;
         case 'closed':
           SessionDestroy();
@@ -206,7 +223,7 @@ const Server = ({navigation}:any) => {
   return (
     <SafeAreaView style={{flex:1}}>
       {
-        captureMode && device != null ? 
+        device != null ? 
         <Camera
           style={{flex:1}}
           device={device}
@@ -214,7 +231,7 @@ const Server = ({navigation}:any) => {
           ref={cameraRef}
           photo={true}
         />
-        : localStream && <RTCView streamURL={localStream.toURL()} mirror={true} style={{ flex: 1 }} objectFit={'cover'}/>
+        : null
       }
       <Footer navigation={navigation}/>
     </SafeAreaView>

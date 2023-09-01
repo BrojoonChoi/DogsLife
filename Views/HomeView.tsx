@@ -8,6 +8,9 @@ import Swiper from 'react-native-swiper';
 import Footer from '../Components/Footer'
 import CameraList from '../Components/CameraList';
 import GlobalContext from '../Components/GlobalContext';
+import database from '@react-native-firebase/database';
+import storage from '@react-native-firebase/storage'
+
 import Header from '../Components/Header';
 
 import ImgLogo from '../Assets/Images/img_home_logo_small.svg'
@@ -15,9 +18,43 @@ import SettingIcon from '../Assets/Images/img_home_setting.svg'
 
 function HomeView({navigation, route}:any):JSX.Element
 {
-    const { dataList, timeLine } = route.params;
-    const {getData, storeData} = useContext(GlobalContext);
+    const { dataList } = route.params;
+    const [timeLine, setTimeline] = useState(undefined);
+    const {getData, storeData, userToken, GetCachePath, CheckCacheFile, SaveCacheFile} = useContext(GlobalContext);
 
+    const DownloadTimeline = async() => {
+        if (userToken == null) return;
+        const firebasePath:any = [];
+        const titleAndText = database().ref(`data/${userToken}/timeLine/`);
+        
+        await titleAndText.limitToLast(5).once("value")
+        .then(async (snap) => {
+            const data = await snap.val();
+            for (const key in data) {
+                if (Object.prototype.hasOwnProperty.call(data, key)) {
+                    const item = data[key];
+
+                    const path = item.title;
+                    const tempPath = await GetCachePath(`timeline/${path}`);
+                    let tempResult;
+                    try {
+                        await CheckCacheFile(tempPath) ? 
+                        tempResult = tempPath :
+                        await storage().ref(`${userToken}/${path}`).getDownloadURL().then((url) => SaveCacheFile(url, tempPath)).then(tempResult = tempPath)
+                    }catch (exception) {
+                        console.log("test : " + tempPath)
+                    }
+
+                    const pushedResult = {...item, image:tempResult};
+                    firebasePath.push(pushedResult);
+                }
+              }
+        });
+
+        //return imageList
+        if (firebasePath.length == 0) return undefined;
+        return firebasePath;
+    }
     useEffect (() =>
     {
         init();
@@ -29,8 +66,9 @@ function HomeView({navigation, route}:any):JSX.Element
             storeData("tutorial", "done");
             navigation.navigate("Tutorial");
         }
+        setTimeline(await DownloadTimeline());
     }
-    const dummyData = {api:[{title:"2023.01.01 12:00", text:"CCTV를 사용하면,", image:""}, {title:"2023.01.01 12:15", text:"강아지가 뭘 하는지.", image:""}, {title:"2023.01.01 12:30", text:"타임라인을 남겨드립니다.", image:""}]}
+    const dummyData = {api:[{title:"2023.01.01 12:00", text:"Loading...", image:""}]}
     const CamHistory = (title:string, text:string, image:string, key:any) => {
         return (
             <View key={`camkey${key}`} style={{justifyContent:"flex-start", flexDirection:"row", width:"100%", marginBottom:8}}>

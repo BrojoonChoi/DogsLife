@@ -37,45 +37,9 @@ function LoadingView({navigation, dataList}: any):JSX.Element
         return imageList
     }
 
-    const DownloadTimeline = async() => {
-        if (userToken == null) return;
-        const firebasePath:any = [];
-        const titleAndText = database().ref(`data/${userToken}/timeLine/`);
-        
-        await titleAndText.limitToLast(5).once("value")
-        .then(async (snap) => {
-            const data = await snap.val();
-            for (const key in data) {
-                if (Object.prototype.hasOwnProperty.call(data, key)) {
-                    const item = data[key];
-
-                    const path = item.title;
-                    const tempPath = await GetCachePath(`timeline/${path}`);
-                    let tempResult;
-                    try {
-                        await CheckCacheFile(tempPath) ? 
-                        tempResult = tempPath :
-                        await storage().ref(`${userToken}/${path}`).getDownloadURL().then((url) => SaveCacheFile(url, tempPath)).then(tempResult = tempPath)
-                    }catch (exception) {
-                        console.log("test : " + tempPath)
-                    }
-
-                    const pushedResult = {...item, image:tempResult};
-                    firebasePath.push(pushedResult);
-                }
-              }
-        });
-
-        //return imageList
-        if (firebasePath.length == 0) return undefined;
-        return firebasePath;
-    }
-
     const Home = async () => {
-        const timeLine = await DownloadTimeline();
-        setTimeline(timeLine);
         const dataList = await DownloadBanner();
-        navigation.reset({routes: [{ name: 'Home', params: { dataList: dataList , timeLine:timeLine} }] })
+        navigation.reset({routes: [{ name: 'Home', params: { dataList: dataList } }] })
     }
 
     const requestMediaPermissions = async () => {
