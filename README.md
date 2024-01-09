@@ -1,4 +1,4 @@
-# DogsLife
+# DogsLife(강아지의 하루, 반려동물 CCTV 앱)
 
 React.native project.
 
