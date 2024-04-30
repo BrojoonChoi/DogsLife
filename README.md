@@ -9,7 +9,13 @@ WebRTC issues tokens and uploads in Firebase.
 Also, by using Firebase event, the receiver can receive tokens.
 
 다국어 지원 및 클라우드 서비스 연동, WebRTC 사용, 안드로이드 및 iOS 지원.
-React.Native 및 TypeScript, Firebase로 개발 되었음.
+
+사용된 기술 스택
+* NoSQL, Firebase, Cloud
+* WebRTC
+* React.Native
+* TypeScript
+* Node.js
 
 ## App
 > App.tsx > LoadingView.tsx > LoginView.tsx > HomeView.tsx 순으로 이동된다.
