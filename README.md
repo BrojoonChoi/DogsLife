@@ -101,9 +101,9 @@ export default App;
 
 ## Tutorial
 
-<img src="https://github.com/BrojoonChoi/DogsLife/assets/113426426/6568f211-4a18-4373-9aa7-2ec90b849828" width="300"/>
-<img src="https://github.com/BrojoonChoi/DogsLife/assets/113426426/9caef52e-14ee-431a-ae10-5b42d5910fe6" width="300"/>
-<img src="https://github.com/BrojoonChoi/DogsLife/assets/113426426/21ee4e25-e131-4ba1-8397-728c95b27f0e" width="300"/>
+<img src="https://github.com/BrojoonChoi/DogsLife/assets/113426426/6568f211-4a18-4373-9aa7-2ec90b849828" width="200"/>
+<img src="https://github.com/BrojoonChoi/DogsLife/assets/113426426/9caef52e-14ee-431a-ae10-5b42d5910fe6" width="200"/>
+<img src="https://github.com/BrojoonChoi/DogsLife/assets/113426426/21ee4e25-e131-4ba1-8397-728c95b27f0e" width="200"/>
 
 처음 실행 시 튜토리얼 실행
 DogsLife/Language/kor.tsx 파일에서 데이터를 읽어온다.
