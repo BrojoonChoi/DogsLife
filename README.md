@@ -22,16 +22,16 @@ Also, by using Firebase event, the receiver can receive tokens.
 
 ```TypeScript
 const firebaseConfig = {
-  apiKey: "AIzaSyBny7zuFlGUdjVokhr0SVDBjCIE6RJ76Rk",
-  authDomain: "dogs-5344e.firebaseapp.com",
-  databaseURL: "https://dogs-5344e-default-rtdb.asia-southeast1.firebasedatabase.app",
+  apiKey: "",
+  authDomain: "dogs.firebaseapp.com",
+  databaseURL: "",
   projectId: "dogs-5344e",
-  storageBucket: "dogs-5344e.appspot.com",
+  storageBucket: "dogs.appspot.com",
   messagingSenderId: "21242744532",
-  appId: "1:21242744532:web:f875a98f44a81e607cb541",
-  measurementId: "G-4GN4G7K6CC"
+  appId: "1::web:",
+  measurementId: "G-"
 };
-const googleSigninConfigure = () => GoogleSignin.configure({webClientId:'21242744532-tpjf2a06f38c0p4kq3c3gqvc9bntqtrj.apps.googleusercontent.com',})
+const googleSigninConfigure = () => GoogleSignin.configure({webClientId:'-.apps.googleusercontent.com',})
 const Stack = createNativeStackNavigator();
 firebase.initializeApp(firebaseConfig);
 
