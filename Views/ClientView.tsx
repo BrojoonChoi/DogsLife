@@ -24,16 +24,16 @@ let mediaConstraints = {
 };
 
 const Client = ({navigation}:any) => {
-  const [remoteStream, setRemoteStream] = useState(new MediaStream());
-  const [localStream, setLocalStream] = useState(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [askAgain, setAskAgain] = useState(true);
-  const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext(GlobalContext)
+  const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext<any>(GlobalContext)
   const [inputBoxVisible, setInputBoxVisible] = useState(false);
-  const [pc, setPc] = useState(new RTCPeerConnection(peerConstraints));
+  const [pc, setPc] = useState<RTCPeerConnection>(new RTCPeerConnection(peerConstraints));
 
   const SessionDestroy = async () => {
     pc.close();
-    setPc(null);
+    setPc(new RTCPeerConnection(peerConstraints));
     console.log("disconnected");
   }
   
@@ -56,8 +56,10 @@ const Client = ({navigation}:any) => {
   }
 
   const isFirst = async() => {
+    console.log("here")
     const offerRef = firebase.database().ref(`offers/${userToken}`);
 
+    console.log("there")
     offerRef.on("value", (snap) => {
       if (snap.val() != null) {
         console.log("connected");
@@ -116,7 +118,7 @@ const Client = ({navigation}:any) => {
       await pc.setRemoteDescription(offerDes);
     } catch {
       setInputBoxVisible(true);
-      pc.close();
+      pc?.close();
       return;
     }
     
@@ -182,7 +184,7 @@ const Client = ({navigation}:any) => {
       }
       <View style={{flex:1}}>
         <CameraList />
-        
+        <Button onPress={() => setInputBoxVisible(true)} title='Reconnect' />
         <View style={{flex:0.8, ...Styles.timeLine}}>
         </View>
       </View>

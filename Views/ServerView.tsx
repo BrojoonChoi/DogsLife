@@ -32,7 +32,7 @@ let mediaConstraints = {
 
 const Server = ({navigation}:any) => {
   //const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
-  const [localStream, setLocalStream] = useState<any>(null);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [captureMode, setCaptureMode] = useState(true);
   const [pc, setPc] = useState(new RTCPeerConnection(peerConstraints));
   const [uri, setUri] = useState("")
@@ -122,7 +122,7 @@ const Server = ({navigation}:any) => {
     KeepAwake.activate();
     ShowNotification(salt, "일상용 핸드폰에 이 번호를 입력하세요.")
     
-    setPc(new RTCPeerConnection(peerConstraints));
+    //setPc(new RTCPeerConnection(peerConstraints));
     createOffer(salt);
     scheduleIntervalFunction();
   }
@@ -142,12 +142,22 @@ const Server = ({navigation}:any) => {
     
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
     setLocalStream(stream);
-    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-    localStream.getTracks().forEach(
-      track => track.stop()
-    );
+    console.log("here1")
+
+    console.log(stream)
+
+    try {
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+      localStream?.getTracks().forEach(
+        track => track.stop()
+      );
+    }
+    catch {
+      console.log("there is no camera.")
+    }
 
     // Store the offer (SDP) in Firebase
+    console.log("here2")
     const offerRef = database().ref(`offers/${userToken}`);
     if (pc.localDescription) {
       const rawData:any = {
@@ -159,6 +169,7 @@ const Server = ({navigation}:any) => {
       console.error('Error: Local description is undefined');
     }
     
+    console.log("here3")
     const candidateRefServer = database().ref(`candidates/${userToken}/server`);
     candidateRefServer.remove()
     pc.onicecandidate = (event) => {
