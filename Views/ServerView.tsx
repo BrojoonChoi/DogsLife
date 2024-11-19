@@ -56,7 +56,7 @@ const Server = ({navigation}:any) => {
     if (cameraRef.current && captureMode) {
       try {
         const timeStamp = makeDate();
-        console.log(timeStamp)
+        
         const snapshot = await cameraRef.current.takeSnapshot({
           quality: 80,
           skipMetadata: true,
@@ -172,6 +172,7 @@ const Server = ({navigation}:any) => {
     pc.onicecandidate = (event) => {
       if (event.candidate) {
         candidateRefServer.push(event.candidate);
+        console.log("S : Server candidates added")
       }
     };
 
@@ -185,6 +186,7 @@ const Server = ({navigation}:any) => {
           type:decryptWithSalt(answer._type, salt),
         });
         await pc.setRemoteDescription(answerDes);
+        console.log("S : Got answer")
       }
     });
     
@@ -193,6 +195,7 @@ const Server = ({navigation}:any) => {
     candidateRefClient.on('child_added', (snapshot) => {
       const candidate = new RTCIceCandidate(snapshot.val());
       pc.addIceCandidate(candidate)
+      console.log("S : Client candidates read")
     });
 
     pc.addEventListener('connectionstatechange', async event => {

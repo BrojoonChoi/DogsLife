@@ -24,7 +24,7 @@ let mediaConstraints = {
 };
 
 const Client = ({navigation}:any) => {
-  const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [askAgain, setAskAgain] = useState(true);
   const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext<any>(GlobalContext)
@@ -56,10 +56,8 @@ const Client = ({navigation}:any) => {
   }
 
   const isFirst = async() => {
-    console.log("here")
     const offerRef = firebase.database().ref(`offers/${userToken}`);
 
-    console.log("there")
     offerRef.on("value", (snap) => {
       if (snap.val() != null) {
         console.log("connected");
@@ -84,30 +82,31 @@ const Client = ({navigation}:any) => {
   }
 
   const readOffer = async (salt:string) => {
-    
-
+    console.log("read start")
     pc.ontrack = (event) => {
       event.streams[0].getTracks().forEach(track => {
         remoteStream.addTrack(track);
       });
     };
     
+    console.log("get stream")
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
     setLocalStream(stream)
-    //stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
+    console.log("read offer token")
     const offerRef = firebase.database().ref(`offers/${userToken}`);
-
     offerRef.on("value", (snap) => {
       if (snap.val() != null) {
-        console.log("connected");
+        console.log("C : connected");
       } else {
-        console.log("not connected");
+        console.log("C : not connected");
         AskCameraSetting();
         return;
       }
     })
 
+    console.log("read snapshot")
     try {
       const snapshot = await offerRef.once('value')
       const offer = snapshot.val().sdp;
@@ -118,11 +117,11 @@ const Client = ({navigation}:any) => {
       await pc.setRemoteDescription(offerDes);
     } catch {
       setInputBoxVisible(true);
-      pc?.close();
       return;
     }
     
     // Create an answer and set it as local description
+    console.log("create answer")
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
     
@@ -131,22 +130,26 @@ const Client = ({navigation}:any) => {
     candidateRefClient.remove()
     pc.onicecandidate = (event) => {
       if (event.candidate) {
+        console.log("C : Client candidates added")
         candidateRefClient.push(event.candidate);
       }
     };
 
     // Store the answer (SDP) in Firebase
+    console.log("Save Answer")
     const answerRef = database().ref(`answers/${userToken}`);
     const rawData:any = {
-      _sdp:encryptWithSalt(pc.localDescription._sdp, salt),
-      _type:encryptWithSalt(pc.localDescription._type, salt)
+      _sdp:encryptWithSalt(pc?.localDescription._sdp, salt),
+      _type:encryptWithSalt(pc?.localDescription._type, salt)
     }
     await answerRef.set({ sdp: rawData });
 
+    console.log("here@")
     const candidateRefServer = database().ref(`candidates/${userToken}/server`);
     candidateRefServer.on('child_added', (snapshot) => {
       const candidate = new RTCIceCandidate(snapshot.val());
       pc.addIceCandidate(candidate)
+      console.log("C : Server candidates read")
     });
 
     setAskAgain(false);
@@ -177,7 +180,7 @@ const Client = ({navigation}:any) => {
   return (
     <SafeAreaView style={{backgroundColor:"#FFFFFF", flex:1}}>
       {
-        remoteStream.getVideoTracks().length > 0 ? 
+        remoteStream?.getVideoTracks().length > 0 ? 
           <RTCView streamURL={remoteStream.toURL()} mirror={true} style={{ flex: 1, borderBottomLeftRadius:16, marginBottom:21 }} objectFit={'cover'} />
         :  
           <RTCView streamURL={""} mirror={true} style={{ flex: 1, borderRadius:16, marginBottom:21 }} objectFit={'cover'} />
