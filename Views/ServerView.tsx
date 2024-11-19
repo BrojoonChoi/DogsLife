@@ -31,7 +31,7 @@ let mediaConstraints = {
 };
 
 const Server = ({navigation}:any) => {
-  //const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
+  const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
   const [localStream, setLocalStream] = useState<any>(null);
   const [captureMode, setCaptureMode] = useState(true);
   const [pc, setPc] = useState(new RTCPeerConnection(peerConstraints));
@@ -101,7 +101,8 @@ const Server = ({navigation}:any) => {
   }
 
   const Escaped = () => {
-    SessionDestroy();
+    pc.close();
+    KeepAwake.deactivate();
   };
 
   const SessionDestroy = async () => {
