@@ -31,8 +31,8 @@ let mediaConstraints = {
 };
 
 const Server = ({navigation}:any) => {
-  const [remoteStream, setRemoteStream] = useState(new MediaStream());
-  const [localStream, setLocalStream] = useState(null);
+  //const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
+  const [localStream, setLocalStream] = useState<any>(null);
   const [captureMode, setCaptureMode] = useState(true);
   const [pc, setPc] = useState(new RTCPeerConnection(peerConstraints));
   const [uri, setUri] = useState("")
@@ -41,17 +41,17 @@ const Server = ({navigation}:any) => {
   const devices = useCameraDevices();
   const device = devices.back;
 
-  const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt, userToken, UploadFile, UploadData} = useContext(GlobalContext)
+  const {ShowNotification, ShowOKCancel, generateSalt, encryptWithSalt, decryptWithSalt, userToken, UploadFile, UploadData} = useContext<any>(GlobalContext)
 
   const salt = generateSalt();
-
+  /*
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
 
     console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`);
     examplePlugin(frame);
   }, []);
-
+  */
   const takePicture = async () => {
     if (cameraRef.current && captureMode) {
       try {
