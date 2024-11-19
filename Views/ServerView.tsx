@@ -35,7 +35,7 @@ const Server = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [captureMode, setCaptureMode] = useState(true);
-  const [pc, setPc] = useState(new RTCPeerConnection(peerConstraints));
+  const [pc, setPc] = useState<RTCPeerConnection | null>(null);
   const [uri, setUri] = useState("")
   const cameraRef = useRef<Camera>(null);
 
@@ -100,11 +100,6 @@ const Server = ({navigation}:any) => {
     }, millisecondsUntilNextCall);
   }
 
-  const Escaped = () => {
-    pc.close();
-    KeepAwake.deactivate();
-  };
-
   const SessionDestroy = async () => {
     pc.close();
     setPc(new RTCPeerConnection(peerConstraints));
@@ -117,8 +112,15 @@ const Server = ({navigation}:any) => {
   }
 
   useEffect (() => {
+    const newPc = new RTCPeerConnection(peerConstraints);
+    setPc(newPc);
     ShowOKCancel("알림", "카메라 설정을 시작합니다.", () => (StartProcess()) )
-    return () => Escaped();
+    
+    return () => {
+      newPc.close();
+      setPc(null);
+      KeepAwake.deactivate();
+    }
   },[])
 
   const StartProcess = () => {
@@ -178,13 +180,14 @@ const Server = ({navigation}:any) => {
         console.log("All ICE candidates have been gathered");
       }
     };
-
-    pc.onconnectionstatechange = (event) => {
-      console.log(event)
-    } 
-    pc.onsignalingstatechange = (event) => {
-      console.log(event)
-    } 
+    
+    pc.addEventListener('connectionstatechange', () => {
+      console.log("Connection State:", pc.connectionState);
+    });
+    
+    pc.addEventListener('signalingstatechange', () => {
+      console.log("Signaling State:", pc.signalingState);
+    }); 
 
     const answerRef = database().ref(`answers/${userToken}`);
     answerRef.remove()

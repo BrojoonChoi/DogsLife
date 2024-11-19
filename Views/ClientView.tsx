@@ -30,21 +30,23 @@ const Client = ({navigation}:any) => {
   const [askAgain, setAskAgain] = useState(true);
   const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext<any>(GlobalContext)
   const [inputBoxVisible, setInputBoxVisible] = useState(false);
-  const [pc, setPc] = useState<RTCPeerConnection>(new RTCPeerConnection(peerConstraints));
+  const [pc, setPc] = useState<RTCPeerConnection | null>(null);
 
   const SessionDestroy = async () => {
-    pc.close();
+    pc?.close();
     setPc(new RTCPeerConnection(peerConstraints));
     console.log("disconnected");
   }
-  
-  const Escaped = () => {
-    pc.close();
-  };
 
   useEffect(() => {
+    const newPc = new RTCPeerConnection(peerConstraints);
+    setPc(newPc);
+
     StartProcess();
-    return () => Escaped();
+    return () => {
+      newPc.close();
+      setPc(null);
+    };
   }, [])
 
   const AskCameraSetting = () => {
@@ -124,8 +126,6 @@ const Client = ({navigation}:any) => {
     await pc.setLocalDescription(answer);
     
     // Listen for ICE candidates and add them to the connection  
-    console.log(pc.localDescription?._sdp)
-    console.log(pc.localDescription?.sdp)
     const candidateRefClient = database().ref(`candidates/${userToken}/client`);
     candidateRefClient.remove()
     pc.onicecandidate = (event) => {
@@ -136,12 +136,13 @@ const Client = ({navigation}:any) => {
       }
     };
 
-    pc.onconnectionstatechange = (event) => {
-      console.log(event)
-    } 
-    pc.onsignalingstatechange = (event) => {
-      console.log(event)
-    }
+    pc.addEventListener('connectionstatechange', () => {
+      console.log("Connection State:", pc.connectionState);
+    });
+    
+    pc.addEventListener('signalingstatechange', () => {
+      console.log("Signaling State:", pc.signalingState);
+    });
 
     // Store the answer (SDP) in Firebase
     const answerRef = database().ref(`answers/${userToken}`);
