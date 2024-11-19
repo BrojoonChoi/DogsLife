@@ -38,7 +38,7 @@ const Client = ({navigation}:any) => {
   }
   
   const Escaped = () => {
-    SessionDestroy();
+    pc.close();
   };
 
   useEffect(() => {

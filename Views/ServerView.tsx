@@ -32,7 +32,7 @@ let mediaConstraints = {
 
 const Server = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
-  const [localStream, setLocalStream] = useState<any>(null);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [captureMode, setCaptureMode] = useState(true);
   const [pc, setPc] = useState(new RTCPeerConnection(peerConstraints));
   const [uri, setUri] = useState("")
@@ -93,7 +93,6 @@ const Server = ({navigation}:any) => {
     const minutesRemainder = minutes % 15; // 15분 간격으로 호출
   
     const millisecondsUntilNextCall = (15 - minutesRemainder) * 60 * 1000;
-    console.log(millisecondsUntilNextCall);
   
     setInterval(() => {
       scheduledFunction(); // 함수 호출
@@ -108,10 +107,12 @@ const Server = ({navigation}:any) => {
   const SessionDestroy = async () => {
     pc.close();
     setPc(new RTCPeerConnection(peerConstraints));
+    /*
     createOffer(salt);
     setCaptureMode(true);
-    console.log("disconnected");
-    KeepAwake.deactivate();
+    */
+    console.log("Session Destroied");
+
   }
 
   useEffect (() => {
@@ -143,10 +144,7 @@ const Server = ({navigation}:any) => {
     
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
     setLocalStream(stream);
-    console.log("here1")
-
-    console.log(stream)
-
+    
     try {
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
       localStream?.getTracks().forEach(
@@ -158,7 +156,6 @@ const Server = ({navigation}:any) => {
     }
 
     // Store the offer (SDP) in Firebase
-    console.log("here2")
     const offerRef = database().ref(`offers/${userToken}`);
     if (pc.localDescription) {
       const rawData:any = {
@@ -170,7 +167,6 @@ const Server = ({navigation}:any) => {
       console.error('Error: Local description is undefined');
     }
     
-    console.log("here3")
     const candidateRefServer = database().ref(`candidates/${userToken}/server`);
     candidateRefServer.remove()
     pc.onicecandidate = (event) => {
@@ -202,11 +198,11 @@ const Server = ({navigation}:any) => {
     pc.addEventListener('connectionstatechange', async event => {
       switch( pc.connectionState ) {
         case 'connected':
-          console.log("coonected");
+          console.log("Worked Normally");
           setCaptureMode(false);
-          localStream.getTracks().forEach(
+          localStream?.getTracks().forEach(
             track => {
-              track.enable = true;
+              track.enabled = true;
               track._readyState = "live";
             }
           );
