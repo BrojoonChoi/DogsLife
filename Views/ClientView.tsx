@@ -42,12 +42,16 @@ const Client = ({navigation}:any) => {
     const newPc = new RTCPeerConnection(peerConstraints);
     setPc(newPc);
 
-    StartProcess();
     return () => {
       newPc.close();
       setPc(null);
     };
   }, [])
+  
+  useEffect(() => {
+    if (pc !== null)
+      StartProcess()
+  }, [pc])
 
   const AskCameraSetting = () => {
     setAskAgain(false);
@@ -63,11 +67,9 @@ const Client = ({navigation}:any) => {
 
     offerRef.on("value", (snap) => {
       if (snap.val() != null) {
-        console.log("connected");
         setInputBoxVisible(true)
         return;
       } else {
-        console.log("not connected");
         AskCameraSetting();
         return;
       }
@@ -85,7 +87,10 @@ const Client = ({navigation}:any) => {
   }
 
   const readOffer = async (salt:string) => {
-    console.log("read start")
+    if (pc === null) {
+      ShowNotification("Something went wrong!")
+      return;
+    }
     pc.ontrack = (event) => {
       event.streams[0].getTracks().forEach(track => {
         remoteStream.addTrack(track);

@@ -101,7 +101,7 @@ const Server = ({navigation}:any) => {
   }
 
   const SessionDestroy = async () => {
-    pc.close();
+    pc?.close();
     setPc(new RTCPeerConnection(peerConstraints));
     /*
     createOffer(salt);
@@ -123,16 +123,24 @@ const Server = ({navigation}:any) => {
     }
   },[])
 
+  useEffect (() => {
+    if (pc !== null)
+      createOffer(salt);
+  },[pc])
+
   const StartProcess = () => {
     KeepAwake.activate();
     ShowNotification(salt, "일상용 핸드폰에 이 번호를 입력하세요.")
     
     //setPc(new RTCPeerConnection(peerConstraints));
-    createOffer(salt);
-    scheduleIntervalFunction();
+    //scheduleIntervalFunction();
   }
 
   const createOffer = async (salt:string) => {
+    if (pc === null) {
+      ShowNotification("Something went wrong!")
+      return;
+    }
     pc.ontrack = (event) => {
       /*
       event.streams[0].getTracks().forEach(track => {
@@ -150,9 +158,11 @@ const Server = ({navigation}:any) => {
     
     try {
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+      /*
       localStream?.getTracks().forEach(
         track => track.stop()
       );
+      */
     }
     catch {
       console.log("there is no camera.")
