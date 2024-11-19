@@ -172,10 +172,19 @@ const Server = ({navigation}:any) => {
     candidateRefServer.remove()
     pc.onicecandidate = (event) => {
       if (event.candidate) {
+        console.log("New ICE candidate:", event.candidate);
         candidateRefServer.push(event.candidate);
-        console.log("S : Server candidates added")
+      } else {
+        console.log("All ICE candidates have been gathered");
       }
     };
+
+    pc.onconnectionstatechange = (event) => {
+      console.log(event)
+    } 
+    pc.onsignalingstatechange = (event) => {
+      console.log(event)
+    } 
 
     const answerRef = database().ref(`answers/${userToken}`);
     answerRef.remove()

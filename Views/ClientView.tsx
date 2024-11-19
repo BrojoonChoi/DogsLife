@@ -90,12 +90,10 @@ const Client = ({navigation}:any) => {
       });
     };
     
-    console.log("get stream")
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
     setLocalStream(stream)
     stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
-    console.log("read offer token")
     const offerRef = firebase.database().ref(`offers/${userToken}`);
     offerRef.on("value", (snap) => {
       if (snap.val() != null) {
@@ -107,7 +105,6 @@ const Client = ({navigation}:any) => {
       }
     })
 
-    console.log("read snapshot")
     try {
       const snapshot = await offerRef.once('value')
       const offer = snapshot.val().sdp;
@@ -127,17 +124,26 @@ const Client = ({navigation}:any) => {
     await pc.setLocalDescription(answer);
     
     // Listen for ICE candidates and add them to the connection  
+    console.log(pc.localDescription?._sdp)
+    console.log(pc.localDescription?.sdp)
     const candidateRefClient = database().ref(`candidates/${userToken}/client`);
     candidateRefClient.remove()
     pc.onicecandidate = (event) => {
+      console.log("test")
       if (event.candidate) {
         console.log("C : Client candidates added")
         candidateRefClient.push(event.candidate);
       }
     };
 
+    pc.onconnectionstatechange = (event) => {
+      console.log(event)
+    } 
+    pc.onsignalingstatechange = (event) => {
+      console.log(event)
+    }
+
     // Store the answer (SDP) in Firebase
-    console.log("Save Answer")
     const answerRef = database().ref(`answers/${userToken}`);
     const rawData:any = {
       _sdp:encryptWithSalt(pc?.localDescription._sdp, salt),
@@ -145,7 +151,6 @@ const Client = ({navigation}:any) => {
     }
     await answerRef.set({ sdp: rawData });
 
-    console.log("here@")
     const candidateRefServer = database().ref(`candidates/${userToken}/server`);
     candidateRefServer.on('child_added', (snapshot) => {
       const candidate = new RTCIceCandidate(snapshot.val());
