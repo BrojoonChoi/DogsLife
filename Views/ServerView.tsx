@@ -25,10 +25,7 @@ let sessionConstraints = {
 };
 let mediaConstraints = {
 	audio: true,
-	video: {
-		frameRate: 30,
-		facingMode: 'environment'
-	}
+	video: true
 };
 
 const Server = ({navigation}:any) => {
@@ -138,9 +135,12 @@ const Server = ({navigation}:any) => {
     const pc = new RTCPeerConnection(peerConstraints);
 
     pc.ontrack = (event) => {
+
+      /*
       event.streams[0].getTracks().forEach(track => {
         remoteStream.addTrack(track);
       });
+      */
     };
 
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
