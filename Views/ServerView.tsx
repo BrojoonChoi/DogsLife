@@ -35,7 +35,7 @@ const Server = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [captureMode, setCaptureMode] = useState(true);
-  const [pc, setPc] = useState<RTCPeerConnection | null>(null);
+  const [pc, setPc] = useState<RTCPeerConnection | null>(new RTCPeerConnection(peerConstraints));
   const [uri, setUri] = useState("")
   const cameraRef = useRef<Camera>(null);
 
@@ -112,12 +112,10 @@ const Server = ({navigation}:any) => {
   }
 
   useEffect (() => {
-    const newPc = new RTCPeerConnection(peerConstraints);
-    setPc(newPc);
     ShowOKCancel("알림", "카메라 설정을 시작합니다.", () => (StartProcess()) )
     
     return () => {
-      newPc.close();
+      pc?.close();
       setPc(null);
       KeepAwake.deactivate();
     }

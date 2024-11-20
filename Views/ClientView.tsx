@@ -30,7 +30,7 @@ const Client = ({navigation}:any) => {
   const [askAgain, setAskAgain] = useState(true);
   const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext<any>(GlobalContext)
   const [inputBoxVisible, setInputBoxVisible] = useState(false);
-  const [pc, setPc] = useState<RTCPeerConnection | null>(null);
+  const [pc, setPc] = useState<RTCPeerConnection | null>(new RTCPeerConnection(peerConstraints));
 
   const SessionDestroy = async () => {
     pc?.close();
@@ -39,19 +39,13 @@ const Client = ({navigation}:any) => {
   }
 
   useEffect(() => {
-    const newPc = new RTCPeerConnection(peerConstraints);
-    setPc(newPc);
+    StartProcess()
 
     return () => {
-      newPc.close();
+      pc?.close();
       setPc(null);
     };
   }, [])
-  
-  useEffect(() => {
-    if (pc !== null)
-      StartProcess()
-  }, [pc])
 
   const AskCameraSetting = () => {
     setAskAgain(false);
@@ -87,10 +81,11 @@ const Client = ({navigation}:any) => {
   }
 
   const readOffer = async (salt:string) => {
-    if (pc === null) {
+    if (pc === null || pc.connectionState === 'closed') {
       ShowNotification("Something went wrong!")
       return;
     }
+
     pc.ontrack = (event) => {
       event.streams[0].getTracks().forEach(track => {
         remoteStream.addTrack(track);
@@ -113,14 +108,20 @@ const Client = ({navigation}:any) => {
     })
 
     try {
+      console.log(`salt : ${salt}`)
       const snapshot = await offerRef.once('value')
       const offer = snapshot.val().sdp;
       const offerDes = new RTCSessionDescription({
         sdp:decryptWithSalt(offer._sdp, salt),
         type:decryptWithSalt(offer._type, salt),
       });
+      console.log(offerDes._sdp);
+      console.log(offerDes.sdp);
+      console.log(offerDes._type);
+      console.log(offerDes.type);
       await pc.setRemoteDescription(offerDes);
-    } catch {
+    } catch (exception) {
+      console.log(exception)
       setInputBoxVisible(true);
       return;
     }
