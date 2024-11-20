@@ -138,12 +138,6 @@ const Client = ({navigation}:any) => {
       }
     };
 
-    pc.current.onicecandidate = (event) => {
-      if (event.candidate) {
-        offerCandidates.add(event.candidate.toJSON());
-      }
-    };
-
     pc.addEventListener('connectionstatechange', () => {
       console.log("Connection State:", pc.connectionState);
     });
