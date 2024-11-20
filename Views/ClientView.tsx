@@ -25,7 +25,7 @@ let mediaConstraints = {
 };
 
 const Client = ({navigation}:any) => {
-  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(new MediaStream());
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [askAgain, setAskAgain] = useState(true);
   const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext<any>(GlobalContext)
@@ -81,10 +81,7 @@ const Client = ({navigation}:any) => {
   }
 
   const readOffer = async (salt:string) => {
-    if (pc === null || pc.connectionState === 'closed') {
-      ShowNotification("Something went wrong!")
-      return;
-    }
+    const pc = new RTCPeerConnection(peerConstraints);
 
     pc.ontrack = (event) => {
       event.streams[0].getTracks().forEach(track => {
@@ -94,7 +91,7 @@ const Client = ({navigation}:any) => {
     
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
     setLocalStream(stream)
-    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    //stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
     const offerRef = firebase.database().ref(`offers/${userToken}`);
     offerRef.on("value", (snap) => {
@@ -108,7 +105,6 @@ const Client = ({navigation}:any) => {
     })
 
     try {
-      console.log(`salt : ${salt}`)
       const snapshot = await offerRef.once('value')
       const offer = snapshot.val().sdp;
       const offerDes = new RTCSessionDescription({
@@ -117,13 +113,11 @@ const Client = ({navigation}:any) => {
       });
       await pc.setRemoteDescription(offerDes);
     } catch (exception) {
-      console.log(exception)
       setInputBoxVisible(true);
       return;
     }
     
     // Create an answer and set it as local description
-    console.log("create answer")
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
     
@@ -131,20 +125,11 @@ const Client = ({navigation}:any) => {
     const candidateRefClient = database().ref(`candidates/${userToken}/client`);
     candidateRefClient.remove()
     pc.onicecandidate = (event) => {
-      console.log("test")
       if (event.candidate) {
         console.log("C : Client candidates added")
         candidateRefClient.push(event.candidate);
       }
     };
-
-    pc.addEventListener('connectionstatechange', () => {
-      console.log("Connection State:", pc.connectionState);
-    });
-    
-    pc.addEventListener('signalingstatechange', () => {
-      console.log("Signaling State:", pc.signalingState);
-    });
 
     // Store the answer (SDP) in Firebase
     const answerRef = database().ref(`answers/${userToken}`);
@@ -162,11 +147,7 @@ const Client = ({navigation}:any) => {
     });
 
     setAskAgain(false);
-
-    pc.addEventListener('icegatheringstatechange', () => {
-      console.log("ICE Gathering State:", pc.iceGatheringState);
-    });
-
+    
     pc.addEventListener('connectionstatechange', async event => {
       switch( pc.connectionState ) {
         case 'closed':
