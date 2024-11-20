@@ -169,6 +169,10 @@ const Client = ({navigation}:any) => {
 
     setAskAgain(false);
 
+    pc.addEventListener('icegatheringstatechange', () => {
+      console.log("ICE Gathering State:", pc.iceGatheringState);
+    });
+
     pc.addEventListener('connectionstatechange', async event => {
       switch( pc.connectionState ) {
         case 'closed':

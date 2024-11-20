@@ -189,14 +189,10 @@ const Server = ({navigation}:any) => {
       }
     };
     
-    pc.addEventListener('connectionstatechange', () => {
-      console.log("Connection State:", pc.connectionState);
+    pc.addEventListener('icegatheringstatechange', () => {
+      console.log("ICE Gathering State:", pc.iceGatheringState);
     });
     
-    pc.addEventListener('signalingstatechange', () => {
-      console.log("Signaling State:", pc.signalingState);
-    }); 
-
     const answerRef = database().ref(`answers/${userToken}`);
     answerRef.remove()
     answerRef.on('child_added', async (snapshot) => {
