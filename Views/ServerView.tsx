@@ -81,7 +81,6 @@ const Server = ({navigation}:any) => {
   }
 
   const scheduledFunction = async () => {
-    console.log("Scheduled function called at:", new Date());
     takePicture();
   }
   
@@ -92,7 +91,8 @@ const Server = ({navigation}:any) => {
     const millisecondsUntilNextCall = (15 - minutesRemainder) * 60 * 1000;
   
     setInterval(() => {
-      scheduledFunction(); // 함수 호출
+      if (captureMode)
+        scheduledFunction(); // 함수 호출
     }, millisecondsUntilNextCall);
   }
 
@@ -115,9 +115,7 @@ const Server = ({navigation}:any) => {
   const StartProcess = () => {
     KeepAwake.activate();
     ShowNotification(salt, "일상용 핸드폰에 이 번호를 입력하세요.")
-    
-    //setPc(new RTCPeerConnection(peerConstraints));
-    //scheduleIntervalFunction();
+    scheduleIntervalFunction();
   }
 
   const createOffer = async (salt:string) => {
