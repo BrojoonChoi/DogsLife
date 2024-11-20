@@ -112,13 +112,9 @@ const Client = ({navigation}:any) => {
       const snapshot = await offerRef.once('value')
       const offer = snapshot.val().sdp;
       const offerDes = new RTCSessionDescription({
-        sdp:decryptWithSalt(offer._sdp, salt),
-        type:decryptWithSalt(offer._type, salt),
+        sdp:decryptWithSalt(offer.sdp, salt),
+        type:decryptWithSalt(offer.type, salt),
       });
-      console.log(offerDes._sdp);
-      console.log(offerDes.sdp);
-      console.log(offerDes._type);
-      console.log(offerDes.type);
       await pc.setRemoteDescription(offerDes);
     } catch (exception) {
       console.log(exception)
@@ -142,6 +138,12 @@ const Client = ({navigation}:any) => {
       }
     };
 
+    pc.current.onicecandidate = (event) => {
+      if (event.candidate) {
+        offerCandidates.add(event.candidate.toJSON());
+      }
+    };
+
     pc.addEventListener('connectionstatechange', () => {
       console.log("Connection State:", pc.connectionState);
     });
@@ -153,8 +155,8 @@ const Client = ({navigation}:any) => {
     // Store the answer (SDP) in Firebase
     const answerRef = database().ref(`answers/${userToken}`);
     const rawData:any = {
-      _sdp:encryptWithSalt(pc?.localDescription._sdp, salt),
-      _type:encryptWithSalt(pc?.localDescription._type, salt)
+      sdp:encryptWithSalt(pc?.localDescription.sdp, salt),
+      type:encryptWithSalt(pc?.localDescription.type, salt)
     }
     await answerRef.set({ sdp: rawData });
 

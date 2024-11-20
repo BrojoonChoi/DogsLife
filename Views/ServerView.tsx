@@ -170,8 +170,8 @@ const Server = ({navigation}:any) => {
     const offerRef = database().ref(`offers/${userToken}`);
     if (pc.localDescription) {
       const rawData:any = {
-        _sdp:encryptWithSalt(pc.localDescription._sdp, salt),
-        _type:encryptWithSalt(pc.localDescription._type, salt)
+        sdp:encryptWithSalt(pc.localDescription.sdp, salt),
+        type:encryptWithSalt(pc.localDescription.type, salt)
       }
       offerRef.set({ sdp: rawData });
     } else {
@@ -203,8 +203,8 @@ const Server = ({navigation}:any) => {
       const answer = await snapshot.val();
       if (answer != undefined) {
         const answerDes = new RTCSessionDescription({
-          sdp:decryptWithSalt(answer._sdp, salt),
-          type:decryptWithSalt(answer._type, salt),
+          sdp:decryptWithSalt(answer.sdp, salt),
+          type:decryptWithSalt(answer.type, salt),
         });
         await pc.setRemoteDescription(answerDes);
         console.log("S : Got answer")
