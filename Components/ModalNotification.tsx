@@ -4,7 +4,7 @@ import Styles from '../Styles/CommonStyle';
 import GlobalContext from './GlobalContext';
 
 const ModalNotification = () => {
-  const {modalNotificationVisible, modalTitle, modalText, onModalClose} = useContext(GlobalContext)
+  const {modalNotificationVisible, modalTitle, modalText, onModalClose} = useContext<any>(GlobalContext)
   
   return (
     <View>

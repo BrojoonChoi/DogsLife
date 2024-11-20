@@ -32,7 +32,6 @@ const Server = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [captureMode, setCaptureMode] = useState(true);
-  const [pc, setPc] = useState<RTCPeerConnection | null>(new RTCPeerConnection(peerConstraints));
   const [uri, setUri] = useState("")
   const cameraRef = useRef<Camera>(null);
 
@@ -97,31 +96,21 @@ const Server = ({navigation}:any) => {
     }, millisecondsUntilNextCall);
   }
 
-  const SessionDestroy = async () => {
-    pc?.close();
-    setPc(new RTCPeerConnection(peerConstraints));
-    /*
+  const SessionDestroy = async (pc:RTCPeerConnection) => {
+    pc.close;
+
     createOffer(salt);
     setCaptureMode(true);
-    */
     console.log("Session Destroied");
-
   }
 
   useEffect (() => {
     ShowOKCancel("알림", "카메라 설정을 시작합니다.", () => (StartProcess()) )
     
     return () => {
-      pc?.close();
-      setPc(null);
       KeepAwake.deactivate();
     }
   },[])
-
-  useEffect (() => {
-    if (pc !== null)
-      createOffer(salt);
-  },[pc])
 
   const StartProcess = () => {
     KeepAwake.activate();
@@ -135,7 +124,6 @@ const Server = ({navigation}:any) => {
     const pc = new RTCPeerConnection(peerConstraints);
 
     pc.ontrack = (event) => {
-
       /*
       event.streams[0].getTracks().forEach(track => {
         remoteStream.addTrack(track);
@@ -146,11 +134,11 @@ const Server = ({navigation}:any) => {
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
     setLocalStream(stream);
     stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-    /*
+
     localStream?.getTracks().forEach(
       track => track.stop()
     );
-    */
+
 
     // Create an offer and set it as local description
     const offer = await pc.createOffer(sessionConstraints);
@@ -187,10 +175,7 @@ const Server = ({navigation}:any) => {
           sdp:decryptWithSalt(answer.sdp, salt),
           type:decryptWithSalt(answer.type, salt),
         });
-        console.log(answerDes.type)
-        console.log(answerDes._type)
         await pc.setRemoteDescription(answerDes);
-        console.log("S : Got answer")
       }
     });
     
@@ -215,13 +200,13 @@ const Server = ({navigation}:any) => {
           );
           break;
         case 'closed':
-          SessionDestroy();
+          SessionDestroy(pc);
           return;
         case 'disconnected':
-          SessionDestroy();
+          SessionDestroy(pc);
           return;
         case 'failed':
-          SessionDestroy();
+          SessionDestroy(pc);
           return;
       };
     });
@@ -229,7 +214,7 @@ const Server = ({navigation}:any) => {
     pc.addEventListener( 'signalingstatechange', async event => {
       switch( pc.signalingState ) {
         case 'closed':
-          SessionDestroy();
+          SessionDestroy(pc);
           return;
       };
     });

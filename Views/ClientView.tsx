@@ -9,6 +9,7 @@ import Footer from '../Components/Footer'
 import CameraList from '../Components/CameraList';
 import GlobalContext from '../Components/GlobalContext';
 import NumberVerificationScreen from '../Components/ModalNumberInput';
+import ModalNotification from '../Components/ModalNotification';
 
 let peerConstraints = {
   iceServers: [
@@ -27,28 +28,18 @@ let mediaConstraints = {
 const Client = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(new MediaStream());
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const [askAgain, setAskAgain] = useState(true);
   const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext<any>(GlobalContext)
   const [inputBoxVisible, setInputBoxVisible] = useState(false);
-  const [pc, setPc] = useState<RTCPeerConnection | null>(new RTCPeerConnection(peerConstraints));
 
   const SessionDestroy = async () => {
-    pc?.close();
-    setPc(new RTCPeerConnection(peerConstraints));
-    console.log("disconnected");
+    ShowNotification("연결이 끊어졌습니다.")
   }
 
   useEffect(() => {
     StartProcess()
-
-    return () => {
-      pc?.close();
-      setPc(null);
-    };
   }, [])
 
   const AskCameraSetting = () => {
-    setAskAgain(false);
     ShowOKCancel("카메라가 없습니다!", "카메라를 설정하러 갈까요?", () => (navigation.navigate("Server")) )
   }
 
@@ -145,8 +136,6 @@ const Client = ({navigation}:any) => {
       pc.addIceCandidate(candidate)
       console.log("C : Server candidates read")
     });
-
-    setAskAgain(false);
     
     pc.addEventListener('connectionstatechange', async event => {
       switch( pc.connectionState ) {
