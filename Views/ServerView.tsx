@@ -135,36 +135,26 @@ const Server = ({navigation}:any) => {
   }
 
   const createOffer = async (salt:string) => {
-    if (pc === null) {
-      ShowNotification("Something went wrong!")
-      return;
-    }
+    const pc = new RTCPeerConnection(peerConstraints);
+
     pc.ontrack = (event) => {
-      /*
       event.streams[0].getTracks().forEach(track => {
         remoteStream.addTrack(track);
       });
-      */
     };
+
+    const stream = await mediaDevices.getUserMedia(mediaConstraints);
+    setLocalStream(stream);
+    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    /*
+    localStream?.getTracks().forEach(
+      track => track.stop()
+    );
+    */
 
     // Create an offer and set it as local description
     const offer = await pc.createOffer(sessionConstraints);
     await pc.setLocalDescription(offer);
-    
-    const stream = await mediaDevices.getUserMedia(mediaConstraints);
-    setLocalStream(stream);
-    
-    try {
-      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-      /*
-      localStream?.getTracks().forEach(
-        track => track.stop()
-      );
-      */
-    }
-    catch {
-      console.log("there is no camera.")
-    }
 
     // Store the offer (SDP) in Firebase
     const offerRef = database().ref(`offers/${userToken}`);
@@ -182,16 +172,11 @@ const Server = ({navigation}:any) => {
     candidateRefServer.remove()
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        console.log("New ICE candidate:", event.candidate);
         candidateRefServer.push(event.candidate);
       } else {
         console.log("All ICE candidates have been gathered");
       }
     };
-    
-    pc.addEventListener('icegatheringstatechange', () => {
-      console.log("ICE Gathering State:", pc.iceGatheringState);
-    });
     
     const answerRef = database().ref(`answers/${userToken}`);
     answerRef.remove()
@@ -202,6 +187,8 @@ const Server = ({navigation}:any) => {
           sdp:decryptWithSalt(answer.sdp, salt),
           type:decryptWithSalt(answer.type, salt),
         });
+        console.log(answerDes.type)
+        console.log(answerDes._type)
         await pc.setRemoteDescription(answerDes);
         console.log("S : Got answer")
       }
