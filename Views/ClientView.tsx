@@ -26,7 +26,7 @@ let mediaConstraints = {
 };
 
 const Client = ({navigation}:any) => {
-  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(new MediaStream());
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext<any>(GlobalContext)
   const [inputBoxVisible, setInputBoxVisible] = useState(false);
@@ -73,16 +73,20 @@ const Client = ({navigation}:any) => {
 
   const readOffer = async (salt:string) => {
     const pc = new RTCPeerConnection(peerConstraints);
+    console.log("remote : " + remoteStream?.toURL());
 
     pc.ontrack = (event) => {
-      event.streams[0].getTracks().forEach(track => {
-        remoteStream.addTrack(track);
+      const newStream = new MediaStream();
+      event.streams[0].getTracks().forEach((track) => {
+        newStream.addTrack(track);
+        console.log(`Added track - Kind: ${track.kind}, ID: ${track.id}`);
       });
+      setRemoteStream(newStream); // 상태 업데이트
     };
-    
+
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
     setLocalStream(stream)
-    //stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
     const offerRef = firebase.database().ref(`offers/${userToken}`);
     offerRef.on("value", (snap) => {
@@ -125,8 +129,8 @@ const Client = ({navigation}:any) => {
     // Store the answer (SDP) in Firebase
     const answerRef = database().ref(`answers/${userToken}`);
     const rawData:any = {
-      sdp:encryptWithSalt(pc?.localDescription.sdp, salt),
-      type:encryptWithSalt(pc?.localDescription.type, salt)
+      sdp:encryptWithSalt(pc.localDescription?.sdp, salt),
+      type:encryptWithSalt(pc.localDescription?.type, salt)
     }
     await answerRef.set({ sdp: rawData });
 
@@ -139,6 +143,9 @@ const Client = ({navigation}:any) => {
     
     pc.addEventListener('connectionstatechange', async event => {
       switch( pc.connectionState ) {
+        case 'connected':
+          console.log("Worked Normally");
+          break;
         case 'closed':
           SessionDestroy();
           return;
@@ -163,10 +170,18 @@ const Client = ({navigation}:any) => {
   return (
     <SafeAreaView style={{backgroundColor:"#FFFFFF", flex:1}}>
       {
-        remoteStream?.getVideoTracks().length > 0 ? 
-          <RTCView streamURL={remoteStream.toURL()} mirror={true} style={{ flex: 1, borderBottomLeftRadius:16, marginBottom:21 }} objectFit={'cover'} />
-        :  
-          <RTCView streamURL={""} mirror={true} style={{ flex: 1, borderRadius:16, marginBottom:21 }} objectFit={'cover'} />
+        remoteStream && remoteStream?.toURL() ?
+          <RTCView 
+          streamURL={remoteStream.toURL()}
+          mirror={true} 
+          style={{ flex: 1, borderBottomLeftRadius:16, marginBottom:21 }} 
+          objectFit={'cover'} />
+          :
+          <RTCView 
+          streamURL={''}
+          mirror={true} 
+          style={{ flex: 1, borderBottomLeftRadius:16, marginBottom:21 }} 
+          objectFit={'cover'} />
       }
       <View style={{flex:1}}>
         <CameraList />
