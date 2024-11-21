@@ -122,8 +122,17 @@ const Server = ({navigation}:any) => {
   
     // 클라이언트의 요청을 감지
     requestRef.on("value", async (snapshot) => {
-      if (snapshot.val() && snapshot.val().request === true) {
+      if (snapshot.val()) {
         console.log("Client request received. Creating offer...");
+        const requestDate = snapshot.val().request;
+        const timeGap = new Date().getTime() - new Date(requestDate).getTime()
+
+        //요청이 1분 이상 되었다면 null로 변경
+        if (timeGap / 1000 > 60) {
+          const requestRef = database().ref(`requests/${userToken}`);
+          await requestRef.set({ request: null }); // 요청 플래그 설정
+          return;
+        }
         await createOffer(salt); // 기존 createOffer 로직 재활용
   
         // 요청 플래그 제거

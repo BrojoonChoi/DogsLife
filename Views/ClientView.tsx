@@ -37,7 +37,19 @@ const Client = ({navigation}:any) => {
 
   useEffect(() => {
     StartProcess()
+
+    return () => {
+      SetRequest(null);
+    }
   }, [])
+
+  const SetRequest = async (param:any) => {
+    const offerRef = firebase.database().ref(`offers/${userToken}`);
+    await offerRef.remove();
+
+    const requestRef = firebase.database().ref(`requests/${userToken}`);
+    await requestRef.set({ request: param }); // 요청 플래그 설정
+  }
 
   const StartProcess = async () => {
     //restore salt, if there is no salt, perfrom is fisrt
@@ -48,8 +60,7 @@ const Client = ({navigation}:any) => {
     setInputBoxVisible(false);
     storeData("secret", salt)
     
-    const requestRef = firebase.database().ref(`requests/${userToken}`);
-    await requestRef.set({ request: true }); // 요청 플래그 설정
+    await SetRequest(new Date());
   
     const offerRef = firebase.database().ref(`offers/${userToken}`);
     offerRef.on("value", async (snapshot) => {
@@ -67,7 +78,6 @@ const Client = ({navigation}:any) => {
   const onModalClose = () => {
     setInputBoxVisible(false)
   }
-  
 
   const readOffer = async (salt:string) => {
     const pc = new RTCPeerConnection(peerConstraints);
@@ -92,7 +102,6 @@ const Client = ({navigation}:any) => {
         console.log("C : connected");
       } else {
         console.log("C : not connected");
-        AskCameraSetting();
         return;
       }
     })
