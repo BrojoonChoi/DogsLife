@@ -39,37 +39,35 @@ const Client = ({navigation}:any) => {
     StartProcess()
   }, [])
 
-  const AskCameraSetting = () => {
-    ShowOKCancel("카메라가 없습니다!", "카메라를 설정하러 갈까요?", () => (navigation.navigate("Server")) )
-  }
-
   const StartProcess = async () => {
-    await getData("secret").then((result:string) => result !== null ? onDataInput(result) : isFirst());
+    //restore salt, if there is no salt, perfrom is fisrt
+    await getData("secret").then((result:string) => result !== null ? onDataInput(result) : setInputBoxVisible(true));
   }
 
-  const isFirst = async() => {
-    const offerRef = firebase.database().ref(`offers/${userToken}`);
-
-    offerRef.on("value", (snap) => {
-      if (snap.val() != null) {
-        setInputBoxVisible(true)
-        return;
-      } else {
-        AskCameraSetting();
-        return;
-      }
-    })
-  }
-
-  const onDataInput = (salt:string) => {
+  const onDataInput = async (salt:string) => {
     setInputBoxVisible(false);
     storeData("secret", salt)
-    readOffer(salt);
+    
+    const requestRef = firebase.database().ref(`requests/${userToken}`);
+    await requestRef.set({ request: true }); // 요청 플래그 설정
+  
+    const offerRef = firebase.database().ref(`offers/${userToken}`);
+    offerRef.on("value", async (snapshot) => {
+      if (snapshot.val() != null) {
+        console.log("Offer detected. Starting connection...");
+        await readOffer(salt); // 기존 readOffer 로직 재활용
+      }
+      else {
+        ShowOKCancel("카메라가 없습니다!", "카메라를 설정하러 갈까요?", () => (navigation.navigate("Server")) )
+        return;
+      }
+    });
   }
 
   const onModalClose = () => {
     setInputBoxVisible(false)
   }
+  
 
   const readOffer = async (salt:string) => {
     const pc = new RTCPeerConnection(peerConstraints);
@@ -145,6 +143,14 @@ const Client = ({navigation}:any) => {
       switch( pc.connectionState ) {
         case 'connected':
           console.log("Worked Normally");
+          console.log("remoteStream.getTracks().length : " + remoteStream?.getTracks().length)
+          remoteStream?.getTracks().forEach((track) => {
+            console.log(`Track ID: ${track.id}`);
+            console.log(`Kind: ${track.kind}`);
+            console.log(`Enabled: ${track.enabled}`);
+            console.log(`Ready State: ${track.readyState}`);
+          });
+          
           break;
         case 'closed':
           SessionDestroy();

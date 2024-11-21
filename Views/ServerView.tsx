@@ -95,27 +95,44 @@ const Server = ({navigation}:any) => {
     pc.close();
     stream.getTracks().forEach(track => track.stop());
     setLocalStream(null);
-
-    createOffer(salt);
     setCaptureMode(true);
     console.log("Session Destroied");
   }
 
   useEffect (() => {
     console.log(salt);
+
     ShowOKCancel("알림", "카메라 설정을 시작합니다.", () => (StartProcess()) )
+    const requestRef = AddEventListener();
     
     return () => {
       KeepAwake.deactivate();
+      requestRef.off();
     }
   },[])
 
   const StartProcess = () => {
     KeepAwake.activate();
     ShowNotification(salt, "일상용 핸드폰에 이 번호를 입력하세요.")
-    createOffer(salt);
     scheduleIntervalFunction();
   }
+
+  const AddEventListener = () => {
+    const requestRef = database().ref(`requests/${userToken}`);
+  
+    // 클라이언트의 요청을 감지
+    requestRef.on("value", async (snapshot) => {
+      if (snapshot.val() && snapshot.val().request === true) {
+        console.log("Client request received. Creating offer...");
+        await createOffer(salt); // 기존 createOffer 로직 재활용
+  
+        // 요청 플래그 제거
+        await requestRef.set(null);
+      }
+    });
+  
+    return requestRef;
+  }  
 
   const createOffer = async (salt:string) => {
     const pc = new RTCPeerConnection(peerConstraints);
