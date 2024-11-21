@@ -32,7 +32,6 @@ const Server = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [captureMode, setCaptureMode] = useState(true);
-  const [uri, setUri] = useState("")
   const cameraRef = useRef<Camera>(null);
 
   const devices = useCameraDevices();
@@ -80,10 +79,6 @@ const Server = ({navigation}:any) => {
     return formattedDate;
   }
 
-  const scheduledFunction = async () => {
-    takePicture();
-  }
-  
   function scheduleIntervalFunction() {
     const minutes = new Date().getMinutes();
     const minutesRemainder = minutes % 15; // 15분 간격으로 호출
@@ -92,12 +87,14 @@ const Server = ({navigation}:any) => {
   
     setInterval(() => {
       if (captureMode)
-        scheduledFunction(); // 함수 호출
+        takePicture(); // 함수 호출
     }, millisecondsUntilNextCall);
   }
 
-  const SessionDestroy = async (pc:RTCPeerConnection) => {
-    pc.close;
+  const SessionDestroy = async (pc:RTCPeerConnection, stream:MediaStream) => {
+    pc.close();
+    stream.getTracks().forEach(track => track.stop());
+    setLocalStream(null);
 
     createOffer(salt);
     setCaptureMode(true);
@@ -105,6 +102,7 @@ const Server = ({navigation}:any) => {
   }
 
   useEffect (() => {
+    console.log(salt);
     ShowOKCancel("알림", "카메라 설정을 시작합니다.", () => (StartProcess()) )
     
     return () => {
@@ -115,6 +113,7 @@ const Server = ({navigation}:any) => {
   const StartProcess = () => {
     KeepAwake.activate();
     ShowNotification(salt, "일상용 핸드폰에 이 번호를 입력하세요.")
+    createOffer(salt);
     scheduleIntervalFunction();
   }
 
@@ -128,16 +127,15 @@ const Server = ({navigation}:any) => {
       });
       */
     };
-
-    const stream = await mediaDevices.getUserMedia(mediaConstraints);
-    setLocalStream(stream);
+    
+    let stream = await mediaDevices.getUserMedia(mediaConstraints);
     stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-
+    setLocalStream(stream);
+    /*
     localStream?.getTracks().forEach(
       track => track.stop()
     );
-
-
+    */
     // Create an offer and set it as local description
     const offer = await pc.createOffer(sessionConstraints);
     await pc.setLocalDescription(offer);
@@ -190,29 +188,30 @@ const Server = ({navigation}:any) => {
         case 'connected':
           console.log("Worked Normally");
           setCaptureMode(false);
-          localStream?.getTracks().forEach(
-            track => {
-              track.enabled = true;
-              track._readyState = "live";
-            }
-          );
+          stream = await mediaDevices.getUserMedia(mediaConstraints);
+          stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+          setLocalStream(stream);
+          console.log(localStream);
           break;
         case 'closed':
-          SessionDestroy(pc);
+          stream.getTracks().forEach(
+            track => track.stop()
+          );
+          SessionDestroy(pc, stream);
           return;
         case 'disconnected':
-          SessionDestroy(pc);
+          SessionDestroy(pc, stream);
           return;
         case 'failed':
-          SessionDestroy(pc);
+          SessionDestroy(pc, stream);
           return;
       };
     });
 
-    pc.addEventListener( 'signalingstatechange', async event => {
+    pc.addEventListener('signalingstatechange', async event => {
       switch( pc.signalingState ) {
         case 'closed':
-          SessionDestroy(pc);
+          SessionDestroy(pc, stream);
           return;
       };
     });
@@ -221,13 +220,19 @@ const Server = ({navigation}:any) => {
   return (
     <SafeAreaView style={{flex:1}}>
       {
+        !captureMode && localStream !== null ?
+        <RTCView
+        streamURL={localStream.toURL()}
+        style={{ flex: 1 }}
+        />
+        :
         device != null ? 
         <Camera
           style={{flex:1}}
           device={device}
-          isActive={true}
+          isActive={captureMode}
           ref={cameraRef}
-          photo={true}
+          photo={captureMode}
         />
         : null
       }
