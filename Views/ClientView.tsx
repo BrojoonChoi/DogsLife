@@ -44,10 +44,10 @@ const Client = ({navigation}:any) => {
   }, [])
 
   const SetRequest = async (param:any) => {
-    const offerRef = firebase.database().ref(`offers/${userToken}`);
+    const offerRef = database().ref(`offers/${userToken}`);
     await offerRef.remove();
 
-    const requestRef = firebase.database().ref(`requests/${userToken}`);
+    const requestRef = database().ref(`requests/${userToken}`);
     await requestRef.set({ request: param }); // 요청 플래그 설정
   }
 
@@ -60,16 +60,16 @@ const Client = ({navigation}:any) => {
     setInputBoxVisible(false);
     storeData("secret", salt)
     
-    await SetRequest(new Date());
+    await SetRequest(Date().toString());
   
-    const offerRef = firebase.database().ref(`offers/${userToken}`);
+    const offerRef = database().ref(`offers/${userToken}`);
     offerRef.on("value", async (snapshot) => {
       if (snapshot.val() != null) {
         console.log("Offer detected. Starting connection...");
         await readOffer(salt); // 기존 readOffer 로직 재활용
       }
       else {
-        ShowOKCancel("카메라가 없습니다!", "카메라를 설정하러 갈까요?", () => (navigation.navigate("Server")) )
+        //ShowOKCancel("카메라가 없습니다!", "카메라를 설정하러 갈까요?", () => (navigation.navigate("Server")) )
         return;
       }
     });

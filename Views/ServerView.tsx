@@ -147,21 +147,15 @@ const Server = ({navigation}:any) => {
     const pc = new RTCPeerConnection(peerConstraints);
 
     pc.ontrack = (event) => {
-      /*
       event.streams[0].getTracks().forEach(track => {
         remoteStream.addTrack(track);
       });
-      */
     };
     
-    let stream = await mediaDevices.getUserMedia(mediaConstraints);
+    const stream = await mediaDevices.getUserMedia(mediaConstraints);
     stream.getTracks().forEach((track) => pc.addTrack(track, stream));
     setLocalStream(stream);
-    /*
-    localStream?.getTracks().forEach(
-      track => track.stop()
-    );
-    */
+    
     // Create an offer and set it as local description
     const offer = await pc.createOffer(sessionConstraints);
     await pc.setLocalDescription(offer);
@@ -213,10 +207,6 @@ const Server = ({navigation}:any) => {
       switch( pc.connectionState ) {
         case 'connected':
           console.log("Worked Normally");
-          setCaptureMode(false);
-          stream = await mediaDevices.getUserMedia(mediaConstraints);
-          stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-          setLocalStream(stream);
           console.log(localStream);
           break;
         case 'closed':
