@@ -138,6 +138,7 @@ const Server = ({navigation}:any) => {
           await requestRef.remove(); // 요청 플래그 설정
           return;
         }
+        setCaptureMode(false);
         console.log('accetped');
         await createOffer(salt); // 기존 createOffer 로직 재활용
         await requestRef.set({ request: Date().toString(), flag:'Accepted' }); // 요청 플래그 설정
@@ -152,14 +153,11 @@ const Server = ({navigation}:any) => {
 
   const createOffer = async (salt:string) => {
     const pc = new RTCPeerConnection(peerConstraints);
-    setCaptureMode(false);
 
     pc.ontrack = (event) => {
-      /*
       event.streams[0].getTracks().forEach(track => {
         remoteStream.addTrack(track);
       });
-      */
     };
     
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
@@ -220,7 +218,7 @@ const Server = ({navigation}:any) => {
         case 'connected':
           console.log("Worked Normally");
           console.log(stream);
-          console.log(localStream);
+          console.log(remoteStream);
           break;
         case 'closed':
           stream.getTracks().forEach(
