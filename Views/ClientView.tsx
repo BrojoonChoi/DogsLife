@@ -10,6 +10,7 @@ import CameraList from '../Components/CameraList';
 import GlobalContext from '../Components/GlobalContext';
 import NumberVerificationScreen from '../Components/ModalNumberInput';
 import ModalNotification from '../Components/ModalNotification';
+import { request } from 'react-native-permissions';
 
 let peerConstraints = {
   iceServers: [
@@ -26,7 +27,7 @@ let mediaConstraints = {
 };
 
 const Client = ({navigation}:any) => {
-  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext<any>(GlobalContext)
   const [inputBoxVisible, setInputBoxVisible] = useState(false);
@@ -48,25 +49,33 @@ const Client = ({navigation}:any) => {
     await offerRef.remove();
 
     const requestRef = database().ref(`requests/${userToken}`);
-    await requestRef.set({ request: param }); // 요청 플래그 설정
+    await requestRef.set({ request: param, flag:'Requested' }); // 요청 플래그 설정
   }
 
   const StartProcess = async () => {
     //restore salt, if there is no salt, perfrom is fisrt
+    await SetRequest(Date().toString());
     await getData("secret").then((result:string) => result !== null ? onDataInput(result) : setInputBoxVisible(true));
   }
 
   const onDataInput = async (salt:string) => {
+    console.log('test');
     setInputBoxVisible(false);
     storeData("secret", salt)
     
-    await SetRequest(Date().toString());
+    const requestRef = database().ref(`requests/${userToken}`);
+    const snapshot = await requestRef.once("value");
+    if (!snapshot.exists()) {
+      console.log('re-write');
+      readOffer(salt);
+    }
   
-    const offerRef = database().ref(`offers/${userToken}`);
-    offerRef.on("value", async (snapshot) => {
-      if (snapshot.val() != null) {
-        console.log("Offer detected. Starting connection...");
+    requestRef.on("value", async (_snapshot) => {  
+      if (_snapshot.val() != null && _snapshot.val().flag === 'Accepted') {
+        console.log("Offer Accepted.");
+        await requestRef.set(null);
         await readOffer(salt); // 기존 readOffer 로직 재활용
+        return;
       }
       else {
         //ShowOKCancel("카메라가 없습니다!", "카메라를 설정하러 갈까요?", () => (navigation.navigate("Server")) )
@@ -84,12 +93,10 @@ const Client = ({navigation}:any) => {
     console.log("remote : " + remoteStream?.toURL());
 
     pc.ontrack = (event) => {
-      const newStream = new MediaStream();
       event.streams[0].getTracks().forEach((track) => {
-        newStream.addTrack(track);
+        remoteStream.addTrack(track);
         console.log(`Added track - Kind: ${track.kind}, ID: ${track.id}`);
       });
-      setRemoteStream(newStream); // 상태 업데이트
     };
 
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
@@ -99,9 +106,9 @@ const Client = ({navigation}:any) => {
     const offerRef = firebase.database().ref(`offers/${userToken}`);
     offerRef.on("value", (snap) => {
       if (snap.val() != null) {
-        console.log("C : connected");
+        console.log("C : there is an offer");
       } else {
-        console.log("C : not connected");
+        console.log("C : there is no offer");
         return;
       }
     })
@@ -115,13 +122,11 @@ const Client = ({navigation}:any) => {
       });
       await pc.setRemoteDescription(offerDes);
     } catch (exception) {
+      console.log(exception)
       setInputBoxVisible(true);
       return;
     }
     
-    // Create an answer and set it as local description
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
     
     // Listen for ICE candidates and add them to the connection  
     const candidateRefClient = database().ref(`candidates/${userToken}/client`);
@@ -133,11 +138,15 @@ const Client = ({navigation}:any) => {
       }
     };
 
+    // Create an answer and set it as local description
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+
     // Store the answer (SDP) in Firebase
     const answerRef = database().ref(`answers/${userToken}`);
     const rawData:any = {
-      sdp:encryptWithSalt(pc.localDescription?.sdp, salt),
-      type:encryptWithSalt(pc.localDescription?.type, salt)
+      sdp:encryptWithSalt(pc.localDescription._sdp, salt),
+      type:encryptWithSalt(pc.localDescription._type, salt)
     }
     await answerRef.set({ sdp: rawData });
 
