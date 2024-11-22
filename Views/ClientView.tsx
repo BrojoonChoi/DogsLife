@@ -22,18 +22,20 @@ let peerConstraints = {
 };
 
 let mediaConstraints = {
-	audio: true,
-	video: true
+	audio: false,
+	video: false
 };
 
 const Client = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  //const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext<any>(GlobalContext)
   const [inputBoxVisible, setInputBoxVisible] = useState(false);
 
-  const SessionDestroy = async () => {
-    ShowNotification("연결이 끊어졌습니다.")
+  const SessionDestroy = async (pc:RTCPeerConnection, rStream:MediaStream) => {
+    pc.close()
+    rStream.getTracks().forEach(Track => Track.stop);
+    setRemoteStream(null);
   }
 
   useEffect(() => {
@@ -99,7 +101,7 @@ const Client = ({navigation}:any) => {
     };
 
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
-    setLocalStream(stream)
+    //setLocalStream(stream)
     //stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
     const offerRef = database().ref(`offers/${userToken}`);
@@ -167,6 +169,9 @@ const Client = ({navigation}:any) => {
           }   
           break;
         case 'closed':
+          console.log('closed')
+          pc.close();
+          setRemoteStream(null);
           SessionDestroy();
           return;
         case 'disconnected':
