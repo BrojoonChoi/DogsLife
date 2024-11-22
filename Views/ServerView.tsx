@@ -83,7 +83,7 @@ const Server = ({navigation}:any) => {
     const minutes = new Date().getMinutes();
     const minutesRemainder = minutes % 15; // 15분 간격으로 호출
   
-    const millisecondsUntilNextCall = (15 - minutesRemainder) * 60 * 1000;
+    const millisecondsUntilNextCall = (15 - minutesRemainder) * 60 * 1000 * 15;
   
     setInterval(() => {
       if (captureMode)
@@ -92,10 +92,11 @@ const Server = ({navigation}:any) => {
   }
 
   const SessionDestroy = async (pc:RTCPeerConnection, stream:MediaStream) => {
+    /*
     pc.close();
     stream.getTracks().forEach(track => track.stop());
     setLocalStream(null);
-    setCaptureMode(true);
+    setCaptureMode(true);*/
     console.log("Session Destroied");
   }
 
@@ -122,7 +123,11 @@ const Server = ({navigation}:any) => {
   
     // 클라이언트의 요청을 감지
     requestRef.on("value", async (snapshot) => {
-      if (snapshot.val()) {
+      if (snapshot.val() != null) {
+        if (snapshot.val().flag != 'Requested') {
+          console.log("Flag is wrong.");
+          return;
+        }
         console.log("Client request received. Creating offer...");
         const requestDate = snapshot.val().request;
         const timeGap = new Date().getTime() - new Date(requestDate).getTime()
@@ -130,10 +135,12 @@ const Server = ({navigation}:any) => {
         //요청이 1분 이상 되었다면 null로 변경
         if (timeGap / 1000 > 60) {
           const requestRef = database().ref(`requests/${userToken}`);
-          await requestRef.set({ request: null }); // 요청 플래그 설정
+          await requestRef.remove(); // 요청 플래그 설정
           return;
         }
+        console.log('accetped');
         await createOffer(salt); // 기존 createOffer 로직 재활용
+        await requestRef.set({ request: Date().toString(), flag:'Accepted' }); // 요청 플래그 설정
   
         // 요청 플래그 제거
         await requestRef.set(null);
@@ -141,15 +148,18 @@ const Server = ({navigation}:any) => {
     });
   
     return requestRef;
-  }  
+  }
 
   const createOffer = async (salt:string) => {
     const pc = new RTCPeerConnection(peerConstraints);
+    setCaptureMode(false);
 
     pc.ontrack = (event) => {
+      /*
       event.streams[0].getTracks().forEach(track => {
         remoteStream.addTrack(track);
       });
+      */
     };
     
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
@@ -191,6 +201,8 @@ const Server = ({navigation}:any) => {
           sdp:decryptWithSalt(answer.sdp, salt),
           type:decryptWithSalt(answer.type, salt),
         });
+        console.log('got answer');
+        
         await pc.setRemoteDescription(answerDes);
       }
     });
@@ -207,6 +219,7 @@ const Server = ({navigation}:any) => {
       switch( pc.connectionState ) {
         case 'connected':
           console.log("Worked Normally");
+          console.log(stream);
           console.log(localStream);
           break;
         case 'closed':
@@ -243,6 +256,8 @@ const Server = ({navigation}:any) => {
         />
         :
         device != null ? 
+        null
+        /*
         <Camera
           style={{flex:1}}
           device={device}
@@ -250,6 +265,7 @@ const Server = ({navigation}:any) => {
           ref={cameraRef}
           photo={captureMode}
         />
+        */
         : null
       }
       <Footer navigation={navigation}/>
