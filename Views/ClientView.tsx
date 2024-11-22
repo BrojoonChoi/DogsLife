@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { View, Button, Alert, TouchableOpacity, Text, ScrollView} from 'react-native';
 import Styles from '../Styles/CommonStyle';
 import firebase from '@react-native-firebase/app'
@@ -23,24 +23,38 @@ let peerConstraints = {
 
 let mediaConstraints = {
 	audio: true,
-	video: true
+	video: false
 };
 
 const Client = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  //const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext<any>(GlobalContext)
   const [inputBoxVisible, setInputBoxVisible] = useState(false);
 
   const SessionDestroy = async () => {
-    ShowNotification("연결이 끊어졌습니다.")
+    if (pc.current !== null) {
+      pc.current.onconnectionstatechange = null;
+      pc.current.onsignalingstatechange = null;
+      pc.current.close();
+      pc.current = null;
+      const requestRef = database().ref(`requests/${userToken}`);
+      await requestRef.set({ request: Date().toString(), flag:'Destroy' }); // 요청 플래그 설정
+      console.log("pc destoried")
+    }
+    console.log(remoteStream)
+    if (remoteStream !== null) {
+      remoteStream.getTracks().forEach(Track => Track.stop);
+      setRemoteStream(null);
+      console.log("remote stream destoried")
+    }
   }
 
   useEffect(() => {
     StartProcess()
 
     return () => {
-      SetRequest(null);
+      SessionDestroy();
     }
   }, [])
 
@@ -58,17 +72,20 @@ const Client = ({navigation}:any) => {
     await getData("secret").then((result:string) => result !== null ? onDataInput(result) : setInputBoxVisible(true));
   } 
 
+  const retryRef = useRef(false);
+  const pc = useRef<RTCPeerConnection | null>(null)
   const onDataInput = async (salt:string) => {
     setInputBoxVisible(false);
     storeData("secret", salt)
-    
-    const requestRef = database().ref(`requests/${userToken}`);
-    const snapshot = await requestRef.once("value");
-    if (!snapshot.exists()) {
-      console.log('re-write');
+
+    console.log(retryRef.current)
+    if (retryRef.current == true) {
       readOffer(salt);
+      retryRef.current = false;
+      return;
     }
   
+    const requestRef = database().ref(`requests/${userToken}`);
     requestRef.on("value", async (_snapshot) => {  
       if (_snapshot.val() != null && _snapshot.val().flag === 'Accepted') {
         console.log("Offer Accepted.");
@@ -88,19 +105,21 @@ const Client = ({navigation}:any) => {
   }
 
   const readOffer = async (salt:string) => {
-    const pc = new RTCPeerConnection(peerConstraints);
+    pc.current = new RTCPeerConnection(peerConstraints);
 
     const newRemoteStream = new MediaStream();
 
-    pc.ontrack = (event) => {
+    pc.current.ontrack = (event) => {
       event.streams[0].getTracks().forEach((track) => {
         newRemoteStream.addTrack(track);
       });
     };
 
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
-    setLocalStream(stream)
-    //stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    //setLocalStream(stream)
+    if (pc.current !== null) {
+      stream.getTracks().forEach((track) => pc.current?.addTrack(track, stream));
+    }
 
     const offerRef = database().ref(`offers/${userToken}`);
     offerRef.on("value", (snap) => {
@@ -119,18 +138,17 @@ const Client = ({navigation}:any) => {
         sdp:decryptWithSalt(offer.sdp, salt),
         type:decryptWithSalt(offer.type, salt),
       });
-      await pc.setRemoteDescription(offerDes);
+      await pc.current.setRemoteDescription(offerDes);
     } catch (exception) {
-      console.log(exception)
+      retryRef.current = true;
       setInputBoxVisible(true);
       return;
     }
     
-    
     // Listen for ICE candidates and add them to the connection  
     const candidateRefClient = database().ref(`candidates/${userToken}/client`);
     candidateRefClient.remove()
-    pc.onicecandidate = (event) => {
+    pc.current.onicecandidate = (event) => {
       if (event.candidate) {
         console.log("C : Client candidates added")
         candidateRefClient.push(event.candidate);
@@ -138,15 +156,15 @@ const Client = ({navigation}:any) => {
     };
 
     // Create an answer and set it as local description
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
+    const answer = await pc.current.createAnswer();
+    await pc.current.setLocalDescription(answer);
 
     // Store the answer (SDP) in Firebase
     const answerRef = database().ref(`answers/${userToken}`);
-    if (pc.localDescription) {
+    if (pc.current.localDescription) {
       const rawData:any = {
-        sdp:encryptWithSalt(pc.localDescription.sdp, salt),
-        type:encryptWithSalt(pc.localDescription.type, salt)
+        sdp:encryptWithSalt(pc.current.localDescription.sdp, salt),
+        type:encryptWithSalt(pc.current.localDescription.type, salt)
       }
       await answerRef.set({ sdp: rawData });
     }
@@ -154,33 +172,55 @@ const Client = ({navigation}:any) => {
     const candidateRefServer = database().ref(`candidates/${userToken}/server`);
     candidateRefServer.on('child_added', (snapshot) => {
       const candidate = new RTCIceCandidate(snapshot.val());
-      pc.addIceCandidate(candidate)
-      console.log("C : Server candidates read")
+      if (pc.current !== null)
+        pc.current.addIceCandidate(candidate)
     });
     
-    pc.addEventListener('connectionstatechange', async event => {
-      switch( pc.connectionState ) {
+    pc.current.addEventListener('connectionstatechange', async event => {
+      switch( pc.current?.connectionState ) {
         case 'connected':
           console.log("Worked Normally");
+          offerRef.off();
+          answerRef.off();
+          candidateRefClient.off();
+          candidateRefServer.off();
           if (newRemoteStream.getTracks().length > 0) {
             setRemoteStream(newRemoteStream);
-          }   
+          }
           break;
         case 'closed':
+          console.log("closed")
+          offerRef.off();
+          answerRef.off();
+          candidateRefClient.off();
+          candidateRefServer.off();
           SessionDestroy();
           return;
         case 'disconnected':
+          console.log("disconnected")
+          offerRef.off();
+          answerRef.off();
+          candidateRefClient.off();
+          candidateRefServer.off();
           SessionDestroy();
           return;
         case 'failed':
+          offerRef.off();
+          answerRef.off();
+          candidateRefClient.off();
+          candidateRefServer.off();
           SessionDestroy();
           return;
       };
     });
 
-    pc.addEventListener( 'signalingstatechange', async event => {
-      switch( pc.signalingState ) {
+    pc.current.addEventListener( 'signalingstatechange', async event => {
+      switch( pc.current?.signalingState ) {
         case 'closed':
+          offerRef.off();
+          answerRef.off();
+          candidateRefClient.off();
+          candidateRefServer.off();
           SessionDestroy();
           return;
       };
