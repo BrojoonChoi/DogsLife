@@ -25,14 +25,17 @@ let sessionConstraints = {
 };
 let mediaConstraints = {
 	audio: true,
-	video: true
+	video: {
+		frameRate: 30,
+		facingMode: 'environment'
+	}
 };
 
 const Server = ({navigation}:any) => {
   const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [captureMode, setCaptureMode] = useState(true);
-  const cameraRef = useRef<Camera>(null);
+  //const cameraRef = useRef<Camera>(null);
 
   const devices = useCameraDevices();
   const device = devices.back;
@@ -111,6 +114,12 @@ const Server = ({navigation}:any) => {
       requestRef.off();
     }
   },[])
+  
+  useEffect (() => {
+    console.log(localStream === null)
+    console.log(localStream === undefined)
+    console.log(localStream?.toURL())
+  },[localStream])
 
   const StartProcess = () => {
     KeepAwake.activate();
@@ -155,9 +164,11 @@ const Server = ({navigation}:any) => {
     const pc = new RTCPeerConnection(peerConstraints);
 
     pc.ontrack = (event) => {
+      /*
       event.streams[0].getTracks().forEach(track => {
         remoteStream.addTrack(track);
       });
+      */
     };
     
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
