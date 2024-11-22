@@ -90,20 +90,19 @@ const Client = ({navigation}:any) => {
 
   const readOffer = async (salt:string) => {
     const pc = new RTCPeerConnection(peerConstraints);
-    console.log("remote : " + remoteStream?.toURL());
 
     pc.ontrack = (event) => {
       event.streams[0].getTracks().forEach((track) => {
         remoteStream.addTrack(track);
-        console.log(`Added track - Kind: ${track.kind}, ID: ${track.id}`);
       });
     };
 
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
     setLocalStream(stream)
     stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    stream.getTracks().forEach((track) => console.log(track));
 
-    const offerRef = firebase.database().ref(`offers/${userToken}`);
+    const offerRef = database().ref(`offers/${userToken}`);
     offerRef.on("value", (snap) => {
       if (snap.val() != null) {
         console.log("C : there is an offer");
@@ -144,11 +143,13 @@ const Client = ({navigation}:any) => {
 
     // Store the answer (SDP) in Firebase
     const answerRef = database().ref(`answers/${userToken}`);
-    const rawData:any = {
-      sdp:encryptWithSalt(pc.localDescription._sdp, salt),
-      type:encryptWithSalt(pc.localDescription._type, salt)
+    if (pc.localDescription) {
+      const rawData:any = {
+        sdp:encryptWithSalt(pc.localDescription.sdp, salt),
+        type:encryptWithSalt(pc.localDescription.type, salt)
+      }
+      await answerRef.set({ sdp: rawData });
     }
-    await answerRef.set({ sdp: rawData });
 
     const candidateRefServer = database().ref(`candidates/${userToken}/server`);
     candidateRefServer.on('child_added', (snapshot) => {
@@ -160,15 +161,7 @@ const Client = ({navigation}:any) => {
     pc.addEventListener('connectionstatechange', async event => {
       switch( pc.connectionState ) {
         case 'connected':
-          console.log("Worked Normally");
-          console.log("remoteStream.getTracks().length : " + remoteStream?.getTracks().length)
-          remoteStream?.getTracks().forEach((track) => {
-            console.log(`Track ID: ${track.id}`);
-            console.log(`Kind: ${track.kind}`);
-            console.log(`Enabled: ${track.enabled}`);
-            console.log(`Ready State: ${track.readyState}`);
-          });
-          
+          console.log("Worked Normally");          
           break;
         case 'closed':
           SessionDestroy();
