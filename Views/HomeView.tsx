@@ -19,10 +19,11 @@ import SettingIcon from '../Assets/Images/img_home_setting.svg'
 function HomeView({navigation, route}:any):JSX.Element
 {
     const { dataList } = route.params;
-    const [timeLine, setTimeline] = useState(undefined);
-    const {getData, storeData, userToken, GetCachePath, CheckCacheFile, SaveCacheFile} = useContext(GlobalContext);
+    const [timeLine, setTimeline] = useState<any>(undefined);
+    const [canLoad, setCanLoad] = useState<boolean>(true);
+    const {getData, storeData, userToken, GetCachePath, CheckCacheFile, SaveCacheFile} = useContext<any>(GlobalContext);
 
-    const DownloadTimeline = async() => {
+    const DownloadTimeline = async () => {
         if (userToken == null) return;
         const firebasePath:any = [];
         const titleAndText = database().ref(`data/${userToken}/timeLine/`);
@@ -55,6 +56,45 @@ function HomeView({navigation, route}:any):JSX.Element
         if (firebasePath.length == 0) return undefined;
         return firebasePath;
     }
+    
+    const DownloadTimelineMore = async () => {
+        if (userToken == null) return;
+        const firebasePath:any = [];
+        const titleAndText = database().ref(`data/${userToken}/timeLine/`);
+        
+        await titleAndText.startAt(timeLine.length).limitToLast(timeLine.length + 5).once("value")
+        .then(async (snap) => {
+            const data = await snap.val();
+            for (const key in data) {
+                if (Object.prototype.hasOwnProperty.call(data, key)) {
+                    const item = data[key];
+
+                    const path = item.title;
+                    const tempPath = await GetCachePath(`timeline/${path}`);
+                    let tempResult;
+                    try {
+                        await CheckCacheFile(tempPath) ? 
+                        tempResult = tempPath :
+                        await storage().ref(`${userToken}/${path}`).getDownloadURL().then((url) => SaveCacheFile(url, tempPath)).then(tempResult = tempPath)
+                    }catch (exception) {
+                        console.log("test : " + tempPath)
+                    }
+
+                    const pushedResult = {...item, image:tempResult};
+                    firebasePath.push(pushedResult);
+                }
+              }
+        });
+
+        //return imageList
+        if (firebasePath.length == 0) {
+            setCanLoad(false);
+            return timeLine;
+        }
+        setCanLoad(true);
+        return firebasePath;
+    }
+
     useEffect (() =>
     {
         init();
@@ -68,6 +108,7 @@ function HomeView({navigation, route}:any):JSX.Element
         }
         setTimeline(await DownloadTimeline());
     }
+
     const dummyData = {api:[{title:"2023.01.01 12:00", text:"Loading...", image:""}]}
     const CamHistory = (title:string, text:string, image:string, key:any) => {
         return (
@@ -91,8 +132,11 @@ function HomeView({navigation, route}:any):JSX.Element
         )
     }
 
-    const LoadMore = () => {
-        console.log()
+    const LoadMore = async () => {
+        if (canLoad) {
+            setCanLoad(false);
+            setTimeline(await DownloadTimelineMore());
+        }
     }
     
     return (
