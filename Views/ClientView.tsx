@@ -56,10 +56,9 @@ const Client = ({navigation}:any) => {
     //restore salt, if there is no salt, perfrom is fisrt
     await SetRequest(Date().toString());
     await getData("secret").then((result:string) => result !== null ? onDataInput(result) : setInputBoxVisible(true));
-  }
+  } 
 
   const onDataInput = async (salt:string) => {
-    console.log('test');
     setInputBoxVisible(false);
     storeData("secret", salt)
     
@@ -100,7 +99,6 @@ const Client = ({navigation}:any) => {
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
     setLocalStream(stream)
     stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-    stream.getTracks().forEach((track) => console.log(track));
 
     const offerRef = database().ref(`offers/${userToken}`);
     offerRef.on("value", (snap) => {
@@ -161,7 +159,8 @@ const Client = ({navigation}:any) => {
     pc.addEventListener('connectionstatechange', async event => {
       switch( pc.connectionState ) {
         case 'connected':
-          console.log("Worked Normally");          
+          console.log("Worked Normally");
+          setRemoteStream(remoteStream);       
           break;
         case 'closed':
           SessionDestroy();
@@ -187,18 +186,20 @@ const Client = ({navigation}:any) => {
   return (
     <SafeAreaView style={{backgroundColor:"#FFFFFF", flex:1}}>
       {
-        remoteStream && remoteStream?.toURL() ?
+        remoteStream.getTracks().length > 0 ?
           <RTCView 
           streamURL={remoteStream.toURL()}
           mirror={true} 
           style={{ flex: 1, borderBottomLeftRadius:16, marginBottom:21 }} 
           objectFit={'cover'} />
           :
+          null/*
           <RTCView 
           streamURL={''}
           mirror={true} 
           style={{ flex: 1, borderBottomLeftRadius:16, marginBottom:21 }} 
           objectFit={'cover'} />
+          */
       }
       <View style={{flex:1}}>
         <CameraList />
