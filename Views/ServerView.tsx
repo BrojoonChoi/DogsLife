@@ -32,10 +32,10 @@ let mediaConstraints = {
 };
 
 const Server = ({navigation}:any) => {
-  const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
+  //const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [captureMode, setCaptureMode] = useState(true);
-  //const cameraRef = useRef<Camera>(null);
+  const cameraRef = useRef<Camera>(null);
 
   const devices = useCameraDevices();
   const device = devices.back;
@@ -95,11 +95,10 @@ const Server = ({navigation}:any) => {
   }
 
   const SessionDestroy = async (pc:RTCPeerConnection, stream:MediaStream) => {
-    /*
     pc.close();
     stream.getTracks().forEach(track => track.stop());
     setLocalStream(null);
-    setCaptureMode(true);*/
+    setCaptureMode(true);
     console.log("Session Destroied");
   }
 
@@ -228,13 +227,8 @@ const Server = ({navigation}:any) => {
       switch( pc.connectionState ) {
         case 'connected':
           console.log("Worked Normally");
-          console.log(stream);
-          console.log(remoteStream);
           break;
         case 'closed':
-          stream.getTracks().forEach(
-            track => track.stop()
-          );
           SessionDestroy(pc, stream);
           return;
         case 'disconnected':
@@ -265,8 +259,6 @@ const Server = ({navigation}:any) => {
         />
         :
         device != null ? 
-        null
-        /*
         <Camera
           style={{flex:1}}
           device={device}
@@ -274,7 +266,6 @@ const Server = ({navigation}:any) => {
           ref={cameraRef}
           photo={captureMode}
         />
-        */
         : null
       }
       <Footer navigation={navigation}/>

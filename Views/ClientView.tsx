@@ -27,7 +27,7 @@ let mediaConstraints = {
 };
 
 const Client = ({navigation}:any) => {
-  const [remoteStream, setRemoteStream] = useState<MediaStream>(new MediaStream());
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const {ShowNotification, ShowOKCancel, encryptWithSalt, decryptWithSalt, userToken, storeData, getData} = useContext<any>(GlobalContext)
   const [inputBoxVisible, setInputBoxVisible] = useState(false);
@@ -90,15 +90,17 @@ const Client = ({navigation}:any) => {
   const readOffer = async (salt:string) => {
     const pc = new RTCPeerConnection(peerConstraints);
 
+    const newRemoteStream = new MediaStream();
+
     pc.ontrack = (event) => {
       event.streams[0].getTracks().forEach((track) => {
-        remoteStream.addTrack(track);
+        newRemoteStream.addTrack(track);
       });
     };
 
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
     setLocalStream(stream)
-    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    //stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
     const offerRef = database().ref(`offers/${userToken}`);
     offerRef.on("value", (snap) => {
@@ -160,7 +162,9 @@ const Client = ({navigation}:any) => {
       switch( pc.connectionState ) {
         case 'connected':
           console.log("Worked Normally");
-          setRemoteStream(remoteStream);       
+          if (newRemoteStream.getTracks().length > 0) {
+            setRemoteStream(newRemoteStream);
+          }   
           break;
         case 'closed':
           SessionDestroy();
@@ -186,20 +190,18 @@ const Client = ({navigation}:any) => {
   return (
     <SafeAreaView style={{backgroundColor:"#FFFFFF", flex:1}}>
       {
-        remoteStream.getTracks().length > 0 ?
+        remoteStream !== null ?
           <RTCView 
           streamURL={remoteStream.toURL()}
           mirror={true} 
           style={{ flex: 1, borderBottomLeftRadius:16, marginBottom:21 }} 
           objectFit={'cover'} />
           :
-          null/*
           <RTCView 
           streamURL={''}
           mirror={true} 
           style={{ flex: 1, borderBottomLeftRadius:16, marginBottom:21 }} 
           objectFit={'cover'} />
-          */
       }
       <View style={{flex:1}}>
         <CameraList />
