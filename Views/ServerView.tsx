@@ -86,18 +86,45 @@ const Server = ({navigation}:any) => {
     const minutes = new Date().getMinutes();
     const minutesRemainder = minutes % 15; // 15분 간격으로 호출
   
-    const millisecondsUntilNextCall = (15 - minutesRemainder) * 60 * 1000 * 15;
+    const millisecondsUntilNextCall = (15 - minutesRemainder) * 60 * 1000;
   
-    setInterval(() => {
-      if (captureMode)
+    // 첫 번째 호출을 정확한 시간에 맞추기 위해 setTimeout 사용
+    setTimeout(() => {
+      if (captureMode) {
         takePicture(); // 함수 호출
+      }
+  
+      // 그 후에는 15분마다 반복 호출
+      setInterval(() => {
+        if (captureMode)
+          takePicture(); // 함수 호출
+      }, 15 * 60 * 1000); // 15분 간격
     }, millisecondsUntilNextCall);
   }
 
-  const SessionDestroy = async (pc:RTCPeerConnection, stream:MediaStream) => {
-    pc.close();
-    stream.getTracks().forEach(track => track.stop());
-    setLocalStream(null);
+  const pc = useRef<RTCPeerConnection | null>(null);
+
+  const SessionDestroy = async () => {
+    const offerRef = database().ref(`offers/${userToken}`);
+    const answerRef = database().ref(`answers/${userToken}`);
+    const candidateRefServer = database().ref(`candidates/${userToken}/server`);
+    const candidateRefClient = database().ref(`candidates/${userToken}/client`);
+    offerRef.remove();
+    answerRef.remove();
+    candidateRefServer.remove();
+    candidateRefClient.remove();
+
+    if (pc.current !== null) {
+      pc.current.onconnectionstatechange = null;
+      pc.current.onsignalingstatechange = null;
+      pc.current.close();
+    }
+
+    console.log(localStream)
+    if (localStream !== null) {
+      localStream.getTracks().forEach(track => track.stop());
+      setLocalStream(null);
+    }
     setCaptureMode(true);
     console.log("Session Destroied");
   }
@@ -113,12 +140,6 @@ const Server = ({navigation}:any) => {
       requestRef.off();
     }
   },[])
-  
-  useEffect (() => {
-    console.log(localStream === null)
-    console.log(localStream === undefined)
-    console.log(localStream?.toURL())
-  },[localStream])
 
   const StartProcess = () => {
     KeepAwake.activate();
@@ -132,11 +153,14 @@ const Server = ({navigation}:any) => {
     // 클라이언트의 요청을 감지
     requestRef.on("value", async (snapshot) => {
       if (snapshot.val() != null) {
-        if (snapshot.val().flag != 'Requested') {
-          console.log("Flag is wrong.");
+        if (snapshot.val().flag == 'Destroy') {
+          await requestRef.set(null);
+          SessionDestroy();
           return;
         }
-        console.log("Client request received. Creating offer...");
+        if (snapshot.val().flag != 'Requested') {
+          return;
+        }
         const requestDate = snapshot.val().request;
         const timeGap = new Date().getTime() - new Date(requestDate).getTime()
 
@@ -160,9 +184,9 @@ const Server = ({navigation}:any) => {
   }
 
   const createOffer = async (salt:string) => {
-    const pc = new RTCPeerConnection(peerConstraints);
+    pc.current = new RTCPeerConnection(peerConstraints);
 
-    pc.ontrack = (event) => {
+    pc.current.ontrack = (event) => {
       /*
       event.streams[0].getTracks().forEach(track => {
         remoteStream.addTrack(track);
@@ -170,20 +194,22 @@ const Server = ({navigation}:any) => {
       */
     };
     
+    setLocalStream(null);
     const stream = await mediaDevices.getUserMedia(mediaConstraints);
-    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    console.log(stream);
+    stream.getTracks().forEach((track) => pc.current?.addTrack(track, stream));
     setLocalStream(stream);
     
     // Create an offer and set it as local description
-    const offer = await pc.createOffer(sessionConstraints);
-    await pc.setLocalDescription(offer);
+    const offer = await pc.current.createOffer(sessionConstraints);
+    await pc.current.setLocalDescription(offer);
 
     // Store the offer (SDP) in Firebase
     const offerRef = database().ref(`offers/${userToken}`);
-    if (pc.localDescription) {
+    if (pc.current.localDescription) {
       const rawData:any = {
-        sdp:encryptWithSalt(pc.localDescription.sdp, salt),
-        type:encryptWithSalt(pc.localDescription.type, salt)
+        sdp:encryptWithSalt(pc.current.localDescription.sdp, salt),
+        type:encryptWithSalt(pc.current.localDescription.type, salt)
       }
       offerRef.set({ sdp: rawData });
     } else {
@@ -191,59 +217,88 @@ const Server = ({navigation}:any) => {
     }
     
     const candidateRefServer = database().ref(`candidates/${userToken}/server`);
-    candidateRefServer.remove()
-    pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        candidateRefServer.push(event.candidate);
-      } else {
-        console.log("All ICE candidates have been gathered");
-      }
-    };
+    try {
+      candidateRefServer.remove()
+      pc.current.onicecandidate = (event) => {
+        if (event.candidate) {
+          if (pc.current !== null)
+            candidateRefServer.push(event.candidate);
+        } else {
+          console.log("All ICE candidates have been gathered");
+        }
+      };
+    }
+    catch (exception) {
+      console.log(exception)
+    }
     
     const answerRef = database().ref(`answers/${userToken}`);
-    answerRef.remove()
-    answerRef.on('child_added', async (snapshot) => {
-      const answer = await snapshot.val();
-      if (answer != undefined) {
-        const answerDes = new RTCSessionDescription({
-          sdp:decryptWithSalt(answer.sdp, salt),
-          type:decryptWithSalt(answer.type, salt),
-        });
-        console.log('got answer');
-        
-        await pc.setRemoteDescription(answerDes);
-      }
-    });
+    try {
+      answerRef.remove()
+      answerRef.on('child_added', async (snapshot) => {
+        const answer = await snapshot.val();
+        if (answer != undefined && answer != null) {
+          const answerDes = new RTCSessionDescription({
+            sdp:decryptWithSalt(answer.sdp, salt),
+            type:decryptWithSalt(answer.type, salt),
+          });
+          console.log('got answer');
+          
+          if (pc.current !== null)
+            await pc.current.setRemoteDescription(answerDes);
+        }
+      });
+    }
+    catch (exception) {
+      console.log(exception)
+    }
     
     const candidateRefClient = database().ref(`candidates/${userToken}/client`);
-    candidateRefClient.remove()
-    candidateRefClient.on('child_added', (snapshot) => {
-      const candidate = new RTCIceCandidate(snapshot.val());
-      pc.addIceCandidate(candidate)
-      console.log("S : Client candidates read")
-    });
+    try {
+      candidateRefClient.remove()
+      candidateRefClient.on('child_added', (snapshot) => {
+        const candidate = new RTCIceCandidate(snapshot.val());
+        if (pc.current !== null)
+          pc.current.addIceCandidate(candidate)
+        console.log("S : Client candidates read")
+      });
+    }
+    catch (exception) {
+      console.log(exception);
+    }
 
-    pc.addEventListener('connectionstatechange', async event => {
-      switch( pc.connectionState ) {
+    pc.current.addEventListener('connectionstatechange', async event => {
+      switch( pc.current?.connectionState ) {
         case 'connected':
           console.log("Worked Normally");
           break;
         case 'closed':
-          SessionDestroy(pc, stream);
+          answerRef.off();
+          candidateRefServer.off();
+          SessionDestroy();
           return;
         case 'disconnected':
-          SessionDestroy(pc, stream);
+          answerRef.off();
+          candidateRefClient.off();
+          candidateRefServer.off();
+          SessionDestroy();
           return;
         case 'failed':
-          SessionDestroy(pc, stream);
+          answerRef.off();
+          candidateRefClient.off();
+          candidateRefServer.off();
+          SessionDestroy();
           return;
       };
     });
 
-    pc.addEventListener('signalingstatechange', async event => {
-      switch( pc.signalingState ) {
+    pc.current.addEventListener('signalingstatechange', async event => {
+      switch( pc.current?.signalingState ) {
         case 'closed':
-          SessionDestroy(pc, stream);
+          answerRef.off();
+          candidateRefClient.off();
+          candidateRefServer.off();
+          SessionDestroy();
           return;
       };
     });
@@ -253,10 +308,11 @@ const Server = ({navigation}:any) => {
     <SafeAreaView style={{flex:1}}>
       {
         !captureMode && localStream !== null ?
-        <RTCView
+        <RTCView 
         streamURL={localStream.toURL()}
-        style={{ flex: 1 }}
-        />
+        mirror={true} 
+        style={{ flex: 1 }} 
+        objectFit={'cover'} />
         :
         device != null ? 
         <Camera
