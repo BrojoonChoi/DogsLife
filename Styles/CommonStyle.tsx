@@ -299,6 +299,54 @@ const Styles = StyleSheet.create
         borderRadius: 16,
         margin:5,
     },
+    dairyContainer:
+    {
+        backgroundColor:'#FFF7F9',
+        borderRadius: 16,
+        opacity:1,
+        padding:12,
+        borderColor:'#FFCFD5',
+        borderWidth:1,
+        marginLeft:21,
+        marginRight:21,
+        marginBottom:16,
+        height:'40%',
+        justifyContent:'flex-end'
+    },
+    dairyCard:
+    {
+        justifyContent:'flex-end'
+    },
+    dairyTitle:
+    {
+        flex:1,
+        fontSize:19,
+        fontFamily:"Cafe24Syongsyong",
+        textAlign: "left",
+        letterSpacing: 0.14,
+        color: "#FF99A0",
+        opacity: 1,
+    },
+    dairyTime:
+    {
+        flex:1,
+        fontSize:15,
+        fontFamily:"Cafe24Syongsyong",
+        textAlign: "left",
+        letterSpacing: 0.11,
+        color: "#FFDFDE",
+        opacity: 1,
+    },
+    dairyDescription:
+    {
+        flex:1,
+        fontSize:15,
+        fontFamily:"Cafe24Syongsyong",
+        textAlign: "left",
+        letterSpacing: 0.11,
+        color: "#616161",
+        opacity: 1,
+    },
 })
 
 export default Styles

@@ -1,64 +1,28 @@
-import React, { useEffect, useContext, useState} from 'react';
-import type {PropsWithChildren} from 'react';
-import { SafeAreaView, ScrollView, Text, View, TouchableOpacity } from 'react-native';
+import React, { useEffect, useContext } from 'react';
+import { SafeAreaView, ScrollView, Text, View, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import Styles from '../Styles/CommonStyle';
-import Footer from '../Components/Footer'
+import Footer from '../Components/Footer';
 import GlobalContext from '../Components/GlobalContext';
 import Header from '../Components/Header';
-import { GoogleSignin, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
-import firebase from '@react-native-firebase/app'
-import database from '@react-native-firebase/database';
-import { Image } from 'react-native-svg';
 
-function DiaryView({navigation}:any):JSX.Element
-{
-    const {userToken} = useContext(GlobalContext);
+function DiaryView({navigation}: any): JSX.Element {
+    const { userToken } = useContext<any>(GlobalContext);
 
-    useEffect (() =>
-    {
-        GetDiary();
-    }, [])
+    useEffect(() => {
+        //GetDiary();
+    }, []);
 
-    const GetDiary = async () => {
-        const result:any = [];
-        const titleAndText = database().ref(`data/${userToken}/diary/`);
-
-        await titleAndText.limitToLast(5).once("value")
-        .then(async (snap) => {
-            const data = await snap.val();
-            for (const key in data) {
-                if (Object.prototype.hasOwnProperty.call(data, key)) {
-                    const item = data[key];
-
-                    const path = item.image;
-                    const tempPath = await GetCachePath(`diary/${path}`);
-                    let tempResult;
-                    try {
-                        await CheckCacheFile(tempPath) ? 
-                        tempResult = tempPath :
-                        await storage().ref(`${userToken}/${path}`).getDownloadURL().then((url) => SaveCacheFile(url, tempPath)).then(tempResult = tempPath)
-                    }catch (exception) {
-                        console.log("test : " + tempPath)
-                    }
-                    result.push(...item, tempResult)
-                }
-              }
-        });
-
-        return result;
-    }
-
-    const CreateTimeline = () => {
+    const DairyItem = () => {
         return (
-            <View style={{borderRadius:16, backgroundColor:"#FFF7F9", marginLeft:21, marginRight:21}}>
-                <Image width={"100%"}></Image>
-                <View>
-                    <View>
-                        <Text></Text>
-                        <Text></Text>
-                    </View>
-                    <Text></Text>
-                    <Text></Text>
+            <View style={Styles.dairyContainer}>
+                <View style={Styles.dairyCard}>
+                    <Image
+                        source={{ uri: 'https://example.com/your-image.png' }}
+                        style={{marginBottom:16, ...Styles.camImage}}
+                    />
+                    <Text style={{marginBottom:5, ...Styles.dairyTitle}}>Diary Entry Title</Text>
+                    <Text style={{marginBottom:10, ...Styles.dairyTime}}>{Date().toString()}</Text>
+                    <Text style={{...Styles.dairyDescription}}>This is a brief description of the diary entry. It provides an overview of the content within this entry.</Text>
                 </View>
             </View>
         )
@@ -66,21 +30,27 @@ function DiaryView({navigation}:any):JSX.Element
 
     return (
         <SafeAreaView style={{backgroundColor:"#FFFFFF", justifyContent:'flex-start', ...Styles.mainBody}}>
-            {/* margin is footer height + 21(padding) */}
-            <ScrollView style={{marginBottom:79, width:"100%"}}>
-                {/*Header*/}
-                <Header navigation={navigation} title="Diary" setting={true}/>
-
-                {/* main body */}
-                <View>
-                </View>
+            <ScrollView style={{marginBottom:58, width:"100%"}}>
+                {/* Header */}
+                <Header navigation={navigation} title="Diary" setting={true} />
+                {
+                    DairyItem()
+                }
+                {
+                    DairyItem()
+                }
+                {
+                    DairyItem()
+                }
+                {
+                    DairyItem()
+                }
+                {/* Main Body */}
                 
             </ScrollView>
-
-            {/*Footer*/}
-            <Footer navigation={navigation}/>
+            <Footer />
         </SafeAreaView>
     );
 }
 
-export default DiaryView
+export default DiaryView;
