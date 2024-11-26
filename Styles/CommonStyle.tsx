@@ -310,7 +310,7 @@ const Styles = StyleSheet.create
         marginLeft:21,
         marginRight:21,
         marginBottom:16,
-        height:'40%',
+        height: 513,
         justifyContent:'flex-end'
     },
     dairyCard:
