@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import type {PropsWithChildren} from 'react';
-import { SafeAreaView, ScrollView, Text, View, TouchableOpacity } from 'react-native';
+import { SafeAreaView, ScrollView, Text, View, TouchableOpacity, ViewStyle } from 'react-native';
 import Styles from '../Styles/CommonStyle';
 import Footer from '../Components/Footer'
 import GlobalContext from '../Components/GlobalContext';
@@ -9,14 +9,14 @@ import Swiper from 'react-native-swiper';
 
 function TutorialView({navigation}:any):JSX.Element
 {
-    const {script, GlobalWidth} = useContext(GlobalContext);
-    const scrollRef = useRef();
+    const {script, GlobalWidth} = useContext<any>(GlobalContext);
+    const scrollRef = useRef<ScrollView | null>(null);
     const [page, setPage] = useState(0)
-    const [progress, setProgress] = useState({ width:"0%" })
+    const [progress, setProgress] = useState<any>({ width:"0%" })
 
     useEffect (() =>
     {
-        scrollRef.current.scrollTo({x:GlobalWidth*page, y:0, animated:true})
+        scrollRef.current?.scrollTo({x:GlobalWidth*page, y:0, animated:true})
         const currentPos = `${1 + page * 33}%`
         setProgress({width:currentPos})
     }, [page])
@@ -25,7 +25,7 @@ function TutorialView({navigation}:any):JSX.Element
         return (
             <View style={{ width:"100%", paddingLeft:60, paddingRight:60, marginBottom:32}}>
                 <View style={{ backgroundColor:"#FFF2F4", borderRadius:4, width:"100%", height:8}}>
-                    <View style={{backgroundColor:"#FFB0B3", borderRadius:4, ...progress, height:8}} />
+                    <View style={{backgroundColor:"#FFB0B3", borderRadius:4, height:8, ...progress}} />
                 </View>
             </View>
         )

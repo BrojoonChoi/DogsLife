@@ -15,8 +15,8 @@ import ImgLogo from '../Assets/Images/img_loading_logo.svg'
 
 function LoadingView({navigation, dataList}: any):JSX.Element
 {
-    const {userToken, setUserToken, GlobalWidth, GlobalHeight, GetCachePath, CheckCacheFile, SaveCacheFile, getData, setTimeline} = useContext(GlobalContext);
-    const [login, setLogin] = useState(false);
+    const {userToken, setUserToken, GlobalWidth, GlobalHeight, GetCachePath, CheckCacheFile, SaveCacheFile, getData, setTimeline} = useContext<any>(GlobalContext);
+    const [login, setLogin] = useState<boolean>(false);
 
     const DownloadBanner = async() => {
         const firebasePath:any = [];
